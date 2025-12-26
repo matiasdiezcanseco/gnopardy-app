@@ -4,7 +4,13 @@ import { useState } from "react";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Textarea } from "~/components/ui/textarea";
-import { Select } from "~/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Badge } from "~/components/ui/badge";
 import {
@@ -408,11 +414,18 @@ export function AdminQuestionsClient({
                   onValueChange={(value) => setType(value as QuestionType)}
                   disabled={isSubmitting}
                 >
-                  <option value="text">Text</option>
-                  <option value="audio">Audio</option>
-                  <option value="video">Video</option>
-                  <option value="image">Image</option>
-                  <option value="multiple_choice">Multiple Choice</option>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select question type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="text">Text</SelectItem>
+                    <SelectItem value="audio">Audio</SelectItem>
+                    <SelectItem value="video">Video</SelectItem>
+                    <SelectItem value="image">Image</SelectItem>
+                    <SelectItem value="multiple_choice">
+                      Multiple Choice
+                    </SelectItem>
+                  </SelectContent>
                 </Select>
               </div>
 
@@ -424,12 +437,16 @@ export function AdminQuestionsClient({
                   onValueChange={(value) => setCategoryId(parseInt(value))}
                   disabled={isSubmitting}
                 >
-                  <option value="">Select category...</option>
-                  {categories.map((cat) => (
-                    <option key={cat.id} value={cat.id}>
-                      {cat.name}
-                    </option>
-                  ))}
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select category..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categories.map((cat) => (
+                      <SelectItem key={cat.id} value={cat.id.toString()}>
+                        {cat.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
                 </Select>
               </div>
 
@@ -454,11 +471,16 @@ export function AdminQuestionsClient({
                   onValueChange={(value) => setPoints(parseInt(value))}
                   disabled={isSubmitting}
                 >
-                  <option value="100">100</option>
-                  <option value="200">200</option>
-                  <option value="300">300</option>
-                  <option value="400">400</option>
-                  <option value="500">500</option>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select points" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="100">100</SelectItem>
+                    <SelectItem value="200">200</SelectItem>
+                    <SelectItem value="300">300</SelectItem>
+                    <SelectItem value="400">400</SelectItem>
+                    <SelectItem value="500">500</SelectItem>
+                  </SelectContent>
                 </Select>
               </div>
 
@@ -514,17 +536,22 @@ export function AdminQuestionsClient({
                   Category:
                 </label>
                 <Select
-                  value={filterCategory?.toString() ?? ""}
+                  value={filterCategory?.toString() ?? "all"}
                   onValueChange={(value) =>
-                    setFilterCategory(value ? parseInt(value) : null)
+                    setFilterCategory(value === "all" ? null : parseInt(value))
                   }
                 >
-                  <option value="">All categories</option>
-                  {categories.map((cat) => (
-                    <option key={cat.id} value={cat.id}>
-                      {cat.name}
-                    </option>
-                  ))}
+                  <SelectTrigger className="w-[200px]">
+                    <SelectValue placeholder="All categories" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All categories</SelectItem>
+                    {categories.map((cat) => (
+                      <SelectItem key={cat.id} value={cat.id.toString()}>
+                        {cat.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
                 </Select>
               </div>
             </div>
@@ -662,7 +689,7 @@ export function AdminQuestionsClient({
             <AlertDialogAction
               onClick={(e) => {
                 e.preventDefault();
-                handleDelete();
+                void handleDelete();
               }}
               disabled={isSubmitting}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"

@@ -1,0 +1,152 @@
+# Cursor Rules for Geopardy Project
+
+## 📚 MANDATORY: Read Documentation First
+
+**BEFORE implementing any feature, component, or making architectural decisions, you MUST:**
+
+1. **Read the relevant documentation files** from the `docs/` folder
+2. **Follow the patterns and conventions** outlined in the documentation
+3. **Reference the documentation** when making implementation decisions
+4. **Ensure consistency** with the documented architecture
+
+## Documentation Structure
+
+The project has comprehensive documentation in the `docs/` folder. Always consult these files:
+
+### Core Documentation (Read First)
+- `docs/README.md` - Documentation index and quick reference
+- `docs/PROJECT_OVERVIEW.md` - Complete project description, features, game flow, and user stories
+- `docs/TECH_STACK.md` - All technologies, frameworks, and libraries used
+- `docs/FOLDER_STRUCTURE.md` - Project organization, file structure, and naming conventions
+
+### Technical Guides (Read When Relevant)
+- `docs/DATABASE.md` - PostgreSQL setup, Drizzle ORM patterns, schema design, and query examples
+- `docs/ENVIRONMENT_VARIABLES.md` - Environment variable requirements and configuration
+- `docs/STYLING.md` - Tailwind CSS conventions, design system, responsive patterns, and animations
+- `docs/COMPONENTS.md` - shadcn/ui component usage, component architecture, and best practices
+
+## Implementation Rules
+
+### Before Starting Any Task
+
+1. **Read `docs/PROJECT_OVERVIEW.md`** to understand:
+   - What the feature should do
+   - How it fits into the game flow
+   - User stories and requirements
+
+2. **Read `docs/FOLDER_STRUCTURE.md`** to ensure:
+   - Files are placed in the correct directories
+   - Naming conventions are followed (PascalCase for components, camelCase for utilities, etc.)
+   - Import aliases use `~/` prefix instead of relative paths
+
+3. **Read relevant technical docs** based on the task:
+   - **Database work**: Read `docs/DATABASE.md` for schema patterns, Drizzle queries, and table structure
+   - **Styling work**: Read `docs/STYLING.md` for Tailwind patterns, design tokens, and responsive design
+   - **Component work**: Read `docs/COMPONENTS.md` for shadcn/ui usage and component architecture
+   - **Environment setup**: Read `docs/ENVIRONMENT_VARIABLES.md` for required variables
+
+### Code Style and Patterns
+
+#### File Organization
+- Follow the folder structure in `docs/FOLDER_STRUCTURE.md`
+- Components go in `src/components/` organized by feature (game/, question/, player/, layout/)
+- Server code goes in `src/server/` (db/, actions/, api/)
+- Utilities go in `src/lib/`
+- Use the `~/` import alias (configured in tsconfig.json)
+
+#### Naming Conventions
+- **Components**: PascalCase (`GameBoard.tsx`, `QuestionCell.tsx`)
+- **Pages**: lowercase (`page.tsx`)
+- **Utilities**: camelCase (`formatScore.ts`, `cn.ts`)
+- **Types**: PascalCase (`GameTypes.ts`)
+- **Constants**: UPPER_SNAKE_CASE (in `constants.ts`)
+
+#### Database Patterns
+- Use Drizzle ORM as documented in `docs/DATABASE.md`
+- Table prefix: `jeopardy-app_` (not `geopardy-app_`)
+- Follow the schema patterns for categories, questions, answers, players, and games
+- Use type-safe queries with proper TypeScript inference
+
+#### Styling Patterns
+- Use Tailwind CSS utility classes (see `docs/STYLING.md`)
+- Prefer CSS variables (`bg-primary`) over hardcoded colors (`bg-blue-600`)
+- Use responsive design with mobile-first approach
+- Follow the design system color palette and typography scale
+- Use the `cn()` utility for conditional classes
+
+#### Component Patterns
+- Use shadcn/ui components from `src/components/ui/` (see `docs/COMPONENTS.md`)
+- Compose complex components from smaller ones
+- Keep components pure and predictable
+- Use TypeScript for all components
+- Follow the component architecture examples in the docs
+
+### Tech Stack Requirements
+
+- **Framework**: Next.js 15 with App Router (`src/app/` directory)
+- **Language**: TypeScript (strict mode)
+- **Database**: PostgreSQL with Drizzle ORM
+- **Styling**: Tailwind CSS 4
+- **Components**: shadcn/ui (components copied into project, not installed)
+- **Package Manager**: pnpm
+
+### Common Patterns to Follow
+
+#### Import Statements
+```typescript
+// ✅ Good - Use alias
+import { db } from "~/server/db";
+import { Button } from "~/components/ui/button";
+import { cn } from "~/lib/utils";
+
+// ❌ Bad - Relative paths
+import { db } from "../../../server/db";
+```
+
+#### Component Structure
+```typescript
+// ✅ Good - Follow docs/COMPONENTS.md patterns
+import { Button } from "~/components/ui/button";
+import { cn } from "~/lib/utils";
+
+interface ComponentProps {
+  // props
+}
+
+export function Component({ ...props }: ComponentProps) {
+  return (
+    <div className={cn("base-classes", conditional && "conditional-classes")}>
+      {/* content */}
+    </div>
+  );
+}
+```
+
+#### Database Queries
+```typescript
+// ✅ Good - Follow docs/DATABASE.md patterns
+import { db } from "~/server/db";
+import { categories, questions } from "~/server/db/schema";
+import { eq } from "drizzle-orm";
+
+const allCategories = await db.select().from(categories);
+```
+
+### When in Doubt
+
+1. **Read the documentation** - It's comprehensive and covers most scenarios
+2. **Check existing code** - Follow patterns already established in the codebase
+3. **Follow Next.js App Router conventions** - Use Server Components by default, Client Components only when needed
+4. **Maintain consistency** - If similar code exists, follow its patterns
+
+### Documentation Updates
+
+If you add new features or patterns that aren't documented:
+1. Update the relevant documentation file
+2. Update `docs/README.md` if adding a new doc file
+3. Keep documentation in sync with code changes
+
+## Summary
+
+**Always read the docs before coding. The documentation is the source of truth for this project's architecture, patterns, and conventions.**
+

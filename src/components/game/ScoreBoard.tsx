@@ -25,8 +25,12 @@ export function ScoreBoard({
         "rounded-xl border bg-card p-4 shadow-lg",
         className
       )}
+      role="region"
+      aria-label="Player scoreboard"
     >
-      <h2 className="mb-4 text-xl font-bold text-card-foreground">{title}</h2>
+      <h2 className="mb-4 text-xl font-bold text-card-foreground" id="scoreboard-title">
+        {title}
+      </h2>
       <PlayerList
         players={players}
         selectedPlayerId={selectedPlayerId}

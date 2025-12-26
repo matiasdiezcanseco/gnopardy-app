@@ -63,3 +63,26 @@ export {
   resetGame,
 } from "./game";
 
+// History and Statistics Actions
+export {
+  recordGameHistory,
+  getGameHistory,
+  getGameHistoryById,
+  recordAnswerHistory,
+  getAnswerHistoryByGame,
+  getAnswerHistoryByPlayer,
+  updatePlayerStatistics,
+  getPlayerStatistics,
+  getTopPlayersByScore,
+  getTopPlayersByWins,
+  getTopPlayersByAverage,
+  getAllPlayerStatistics,
+} from "./history";
+
+// Import/Export Actions
+export {
+  exportGameData,
+  exportCategoryData,
+  importGameData,
+  importGameDataMerge,
+} from "./import-export";

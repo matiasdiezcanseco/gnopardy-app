@@ -44,9 +44,17 @@ export function TextAnswerInput({
   };
 
   return (
-    <form onSubmit={handleSubmit} className={cn("space-y-4", className)}>
+    <form 
+      onSubmit={handleSubmit} 
+      className={cn("space-y-4", className)}
+      aria-label="Answer submission form"
+    >
       <div className="space-y-2">
+        <label htmlFor="answer-input" className="sr-only">
+          Your answer
+        </label>
         <Input
+          id="answer-input"
           type="text"
           value={answer}
           onChange={(e) => setAnswer(e.target.value)}
@@ -55,8 +63,21 @@ export function TextAnswerInput({
           disabled={isSubmitting || disabled}
           className="text-base sm:text-lg py-4 sm:py-6 min-h-[48px]"
           autoFocus
+          aria-label="Answer input"
+          aria-describedby={error ? "answer-error" : undefined}
+          aria-invalid={error ? "true" : "false"}
+          autoComplete="off"
         />
-        {error && <p className="text-sm text-destructive">{error}</p>}
+        {error && (
+          <p 
+            className="text-sm text-destructive" 
+            id="answer-error"
+            role="alert"
+            aria-live="polite"
+          >
+            {error}
+          </p>
+        )}
       </div>
 
       <Button
@@ -64,10 +85,15 @@ export function TextAnswerInput({
         size="lg"
         className="w-full min-h-[48px] text-base sm:text-lg"
         disabled={isSubmitting || disabled || !answer.trim()}
+        aria-label={isSubmitting ? "Checking your answer" : "Submit your answer"}
       >
         {isSubmitting ? (
           <>
-            <span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+            <span 
+              className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent"
+              role="status"
+              aria-label="Loading"
+            />
             Checking...
           </>
         ) : (

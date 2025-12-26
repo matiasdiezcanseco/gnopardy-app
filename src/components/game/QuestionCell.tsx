@@ -36,6 +36,7 @@ export function QuestionCell({
         "hover:scale-[1.02] hover:shadow-xl",
         "active:scale-[0.98]",
         "border-2 border-blue-400/30",
+        "focus:outline-none focus:ring-4 focus:ring-blue-400/50 focus:ring-offset-2",
         isAnswered && [
           "opacity-30 cursor-not-allowed",
           "bg-gradient-to-b from-gray-600 to-gray-800",
@@ -50,7 +51,10 @@ export function QuestionCell({
       )}
       disabled={isAnswered || isDisabled}
       onClick={handleClick}
-      aria-label={`$${points} question${isAnswered ? " (answered)" : ""}`}
+      aria-label={`${points} dollar question${isAnswered ? ", already answered" : ", click to answer"}`}
+      aria-disabled={isAnswered || isDisabled}
+      role="button"
+      tabIndex={isAnswered || isDisabled ? -1 : 0}
     >
       {isAnswered ? "" : `$${points}`}
     </Button>

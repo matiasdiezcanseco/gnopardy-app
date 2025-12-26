@@ -2,6 +2,7 @@ import Link from "next/link";
 import { AdminQuestionsClient } from "./client";
 import { getQuestions } from "~/server/actions/question";
 import { getCategories } from "~/server/actions/category";
+import { getAnswersByQuestionId } from "~/server/actions/answer";
 import { Button } from "~/components/ui/button";
 
 export default async function AdminQuestionsPage() {
@@ -14,13 +15,24 @@ export default async function AdminQuestionsPage() {
     return (
       <div className="min-h-screen bg-gradient-to-b from-slate-900 to-blue-950 p-8">
         <div className="container mx-auto">
-          <div className="rounded-lg bg-destructive/10 p-4 text-destructive">
+          <div className="bg-destructive/10 text-destructive rounded-lg p-4">
             Failed to load data
           </div>
         </div>
       </div>
     );
   }
+
+  // Fetch answers for each question
+  const questionsWithAnswers = await Promise.all(
+    questionsResult.data.map(async (question) => {
+      const answersResult = await getAnswersByQuestionId(question.id);
+      return {
+        ...question,
+        answers: answersResult.success ? answersResult.data : [],
+      };
+    }),
+  );
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-900 to-blue-950">
@@ -30,11 +42,11 @@ export default async function AdminQuestionsPage() {
           <div className="flex items-center gap-4">
             <Link
               href="/"
-              className="text-xl font-bold text-white hover:text-amber-400 transition-colors"
+              className="text-xl font-bold text-white transition-colors hover:text-amber-400"
             >
               Jeopardy!
             </Link>
-            <span className="text-sm text-muted-foreground">/</span>
+            <span className="text-muted-foreground text-sm">/</span>
             <span className="text-lg font-semibold text-white">
               Manage Questions
             </span>
@@ -51,11 +63,10 @@ export default async function AdminQuestionsPage() {
 
       <main className="container mx-auto px-4 py-8">
         <AdminQuestionsClient
-          initialQuestions={questionsResult.data}
+          initialQuestions={questionsWithAnswers}
           categories={categoriesResult.data}
         />
       </main>
     </div>
   );
 }
-

@@ -49,7 +49,7 @@ export function AddPlayer({ gameId, onPlayerAdded }: AddPlayerProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-3">
+    <form onSubmit={handleSubmit} className="space-y-3" aria-label="Add new player">
       <div className="flex gap-2">
         <Input
           type="text"
@@ -59,12 +59,29 @@ export function AddPlayer({ gameId, onPlayerAdded }: AddPlayerProps) {
           disabled={isPending}
           className="flex-1"
           maxLength={256}
+          aria-label="Player name"
+          aria-describedby={error ? "player-error" : undefined}
+          aria-invalid={error ? "true" : "false"}
+          autoComplete="off"
         />
-        <Button type="submit" disabled={isPending || !name.trim()}>
+        <Button 
+          type="submit" 
+          disabled={isPending || !name.trim()}
+          aria-label={isPending ? "Adding player..." : "Add player to game"}
+        >
           {isPending ? "Adding..." : "Add Player"}
         </Button>
       </div>
-      {error && <p className="text-sm text-destructive">{error}</p>}
+      {error && (
+        <p 
+          className="text-sm text-destructive" 
+          id="player-error" 
+          role="alert"
+          aria-live="polite"
+        >
+          {error}
+        </p>
+      )}
     </form>
   );
 }

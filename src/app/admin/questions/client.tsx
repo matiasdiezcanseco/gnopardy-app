@@ -47,11 +47,13 @@ export function AdminQuestionsClient({
   initialQuestions,
   categories,
 }: AdminQuestionsClientProps) {
-  const [questions, setQuestions] = useState<QuestionWithAnswers[]>(initialQuestions);
+  const [questions, setQuestions] =
+    useState<QuestionWithAnswers[]>(initialQuestions);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [isCreating, setIsCreating] = useState(false);
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [filterCategory, setFilterCategory] = useState<number | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Form state
   const [text, setText] = useState("");
@@ -86,14 +88,18 @@ export function AdminQuestionsClient({
     setPoints(question.points);
     setCategoryId(question.categoryId);
     setMediaUrl(question.mediaUrl ?? "");
-    setCorrectAnswer(question.correctAnswer ?? "");
+
+    // For text questions, get the correct answer from answers array
+    const textAnswer = question.answers?.find((a) => a.isCorrect)?.text ?? "";
+    setCorrectAnswer(textAnswer);
+
     setMultipleChoiceAnswers(
       question.answers?.map((a) => ({
         id: a.id,
         text: a.text,
         isCorrect: a.isCorrect,
         order: a.order ?? 0,
-      })) ?? []
+      })) ?? [],
     );
     setEditingId(question.id);
     setIsCreating(false);
@@ -131,7 +137,10 @@ export function AdminQuestionsClient({
       return false;
     }
 
-    if ((type === "audio" || type === "video" || type === "image") && !mediaUrl) {
+    if (
+      (type === "audio" || type === "video" || type === "image") &&
+      !mediaUrl
+    ) {
       setError(`Please upload a ${type} file`);
       return false;
     }
@@ -154,7 +163,6 @@ export function AdminQuestionsClient({
         points,
         categoryId: categoryId!,
         mediaUrl: mediaUrl || null,
-        correctAnswer: type !== "multiple_choice" ? correctAnswer : null,
       };
 
       if (editingId !== null) {
@@ -166,17 +174,18 @@ export function AdminQuestionsClient({
           return;
         }
 
-        // Handle multiple choice answers
+        // Handle answers based on question type
         if (type === "multiple_choice") {
-          // Delete answers not in the new list
+          // Multiple choice: manage multiple answers
           const existingAnswerIds = multipleChoiceAnswers
             .filter((a) => a.id)
             .map((a) => a.id!);
-          
+
           const question = questions.find((q) => q.id === editingId);
-          const answersToDelete = question?.answers?.filter(
-            (a) => !existingAnswerIds.includes(a.id)
-          ) ?? [];
+          const answersToDelete =
+            question?.answers?.filter(
+              (a) => !existingAnswerIds.includes(a.id),
+            ) ?? [];
 
           for (const answer of answersToDelete) {
             await deleteAnswer(answer.id);
@@ -199,12 +208,32 @@ export function AdminQuestionsClient({
               });
             }
           }
+        } else {
+          // Text/media questions: single correct answer
+          const question = questions.find((q) => q.id === editingId);
+          const existingAnswer = question?.answers?.find((a) => a.isCorrect);
+
+          if (existingAnswer) {
+            // Update existing answer
+            await updateAnswer(existingAnswer.id, {
+              text: correctAnswer,
+              isCorrect: true,
+            });
+          } else {
+            // Create new answer
+            await createAnswer({
+              questionId: editingId,
+              text: correctAnswer,
+              isCorrect: true,
+            });
+          }
         }
 
-        // Refresh question list
-        const updatedQuestion = { ...result.data, answers: multipleChoiceAnswers };
+        // Refresh question list - Just update with the returned data, answers will be reloaded
         setQuestions((prev) =>
-          prev.map((q) => (q.id === editingId ? updatedQuestion : q))
+          prev.map((q) =>
+            q.id === editingId ? { ...result.data, answers: q.answers } : q,
+          ),
         );
         resetForm();
       } else {
@@ -218,8 +247,9 @@ export function AdminQuestionsClient({
 
         const newQuestion = result.data;
 
-        // Create multiple choice answers
+        // Create answers based on question type
         if (type === "multiple_choice") {
+          // Create multiple choice answers
           for (const answer of multipleChoiceAnswers) {
             await createAnswer({
               questionId: newQuestion.id,
@@ -228,6 +258,13 @@ export function AdminQuestionsClient({
               order: answer.order,
             });
           }
+        } else {
+          // Create single correct answer for text/media questions
+          await createAnswer({
+            questionId: newQuestion.id,
+            text: correctAnswer,
+            isCorrect: true,
+          });
         }
 
         setQuestions((prev) => [...prev, newQuestion]);
@@ -262,9 +299,27 @@ export function AdminQuestionsClient({
     }
   };
 
-  const filteredQuestions = filterCategory
-    ? questions.filter((q) => q.categoryId === filterCategory)
-    : questions;
+  // Apply category filter and search
+  let filteredQuestions = questions;
+
+  if (filterCategory) {
+    filteredQuestions = filteredQuestions.filter(
+      (q) => q.categoryId === filterCategory,
+    );
+  }
+
+  if (searchQuery.trim()) {
+    const query = searchQuery.toLowerCase();
+    filteredQuestions = filteredQuestions.filter(
+      (q) =>
+        q.text.toLowerCase().includes(query) ||
+        q.answers?.some((a) => a.text.toLowerCase().includes(query)) ||
+        categories
+          .find((c) => c.id === q.categoryId)
+          ?.name.toLowerCase()
+          .includes(query),
+    );
+  }
 
   const renderTypeSpecificFields = () => {
     if (type === "multiple_choice") {
@@ -282,8 +337,8 @@ export function AdminQuestionsClient({
           <label className="text-sm font-medium">Media File *</label>
           {mediaUrl ? (
             <div className="space-y-2">
-              <div className="rounded-lg border p-3 flex items-center justify-between">
-                <span className="text-sm truncate">{mediaUrl}</span>
+              <div className="flex items-center justify-between rounded-lg border p-3">
+                <span className="truncate text-sm">{mediaUrl}</span>
                 <Button
                   type="button"
                   variant="ghost"
@@ -301,8 +356,8 @@ export function AdminQuestionsClient({
                 type === "audio"
                   ? "audio/*"
                   : type === "video"
-                  ? "video/*"
-                  : "image/*"
+                    ? "video/*"
+                    : "image/*"
               }
             />
           )}
@@ -323,8 +378,8 @@ export function AdminQuestionsClient({
               {editingId !== null
                 ? "Edit Question"
                 : isCreating
-                ? "Create New Question"
-                : "Questions"}
+                  ? "Create New Question"
+                  : "Questions"}
             </CardTitle>
             {!isCreating && editingId === null && (
               <Button onClick={startCreate}>+ Create Question</Button>
@@ -340,7 +395,7 @@ export function AdminQuestionsClient({
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               {error && (
-                <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">
+                <div className="bg-destructive/10 text-destructive rounded-md p-3 text-sm">
                   {error}
                 </div>
               )}
@@ -413,7 +468,9 @@ export function AdminQuestionsClient({
               {/* Correct Answer (for non-multiple-choice) */}
               {type !== "multiple_choice" && (
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Correct Answer *</label>
+                  <label className="text-sm font-medium">
+                    Correct Answer *
+                  </label>
                   <Input
                     value={correctAnswer}
                     onChange={(e) => setCorrectAnswer(e.target.value)}
@@ -428,36 +485,87 @@ export function AdminQuestionsClient({
                 {isSubmitting
                   ? "Saving..."
                   : editingId !== null
-                  ? "Update Question"
-                  : "Create Question"}
+                    ? "Update Question"
+                    : "Create Question"}
               </Button>
             </form>
           </CardContent>
         )}
       </Card>
 
-      {/* Filter */}
+      {/* Filter and Search */}
       {!isCreating && editingId === null && (
         <Card>
           <CardContent className="pt-6">
-            <div className="flex gap-2 items-center">
-              <label className="text-sm font-medium whitespace-nowrap">
-                Filter by category:
-              </label>
-              <Select
-                value={filterCategory?.toString() ?? ""}
-                onValueChange={(value) =>
-                  setFilterCategory(value ? parseInt(value) : null)
-                }
-              >
-                <option value="">All categories</option>
-                {categories.map((cat) => (
-                  <option key={cat.id} value={cat.id}>
-                    {cat.name}
-                  </option>
-                ))}
-              </Select>
+            <div className="flex flex-col gap-4 md:flex-row">
+              {/* Search */}
+              <div className="flex-1">
+                <Input
+                  type="text"
+                  placeholder="Search questions, answers, or categories..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
+
+              {/* Category Filter */}
+              <div className="flex items-center gap-2">
+                <label className="text-sm font-medium whitespace-nowrap">
+                  Category:
+                </label>
+                <Select
+                  value={filterCategory?.toString() ?? ""}
+                  onValueChange={(value) =>
+                    setFilterCategory(value ? parseInt(value) : null)
+                  }
+                >
+                  <option value="">All categories</option>
+                  {categories.map((cat) => (
+                    <option key={cat.id} value={cat.id}>
+                      {cat.name}
+                    </option>
+                  ))}
+                </Select>
+              </div>
             </div>
+
+            {/* Active Filters Display */}
+            {(searchQuery || filterCategory) && (
+              <div className="mt-3 flex items-center gap-2">
+                <span className="text-muted-foreground text-sm">
+                  Active filters:
+                </span>
+                {searchQuery && (
+                  <Badge
+                    variant="secondary"
+                    className="cursor-pointer"
+                    onClick={() => setSearchQuery("")}
+                  >
+                    Search: "{searchQuery}" ✕
+                  </Badge>
+                )}
+                {filterCategory && (
+                  <Badge
+                    variant="secondary"
+                    className="cursor-pointer"
+                    onClick={() => setFilterCategory(null)}
+                  >
+                    Category:{" "}
+                    {categories.find((c) => c.id === filterCategory)?.name} ✕
+                  </Badge>
+                )}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setSearchQuery("");
+                    setFilterCategory(null);
+                  }}
+                >
+                  Clear all
+                </Button>
+              </div>
+            )}
           </CardContent>
         </Card>
       )}
@@ -466,7 +574,7 @@ export function AdminQuestionsClient({
       <div className="space-y-3">
         {filteredQuestions.map((question) => {
           const category = categories.find((c) => c.id === question.categoryId);
-          
+
           return (
             <Card key={question.id}>
               <CardContent className="pt-6">
@@ -475,12 +583,14 @@ export function AdminQuestionsClient({
                     <div className="flex items-start justify-between">
                       <div className="space-y-1">
                         <p className="font-medium">{question.text}</p>
-                        <div className="flex gap-2 flex-wrap">
+                        <div className="flex flex-wrap gap-2">
                           <Badge variant="secondary">{question.type}</Badge>
                           <Badge>{question.points} pts</Badge>
                           {category && (
                             <Badge
-                              style={{ backgroundColor: category.color ?? undefined }}
+                              style={{
+                                backgroundColor: category.color ?? undefined,
+                              }}
                             >
                               {category.name}
                             </Badge>
@@ -488,13 +598,16 @@ export function AdminQuestionsClient({
                         </div>
                       </div>
                     </div>
-                    {question.correctAnswer && (
-                      <p className="text-sm text-muted-foreground">
-                        Answer: {question.correctAnswer}
-                      </p>
-                    )}
+                    {question.type !== "multiple_choice" &&
+                      question.answers &&
+                      question.answers.length > 0 && (
+                        <p className="text-muted-foreground text-sm">
+                          Answer:{" "}
+                          {question.answers.find((a) => a.isCorrect)?.text}
+                        </p>
+                      )}
                     {question.mediaUrl && (
-                      <p className="text-sm text-muted-foreground truncate">
+                      <p className="text-muted-foreground truncate text-sm">
                         Media: {question.mediaUrl}
                       </p>
                     )}
@@ -523,7 +636,7 @@ export function AdminQuestionsClient({
       </div>
 
       {filteredQuestions.length === 0 && !isCreating && (
-        <div className="text-center py-12">
+        <div className="py-12 text-center">
           <p className="text-muted-foreground mb-4">No questions yet</p>
           <Button onClick={startCreate}>Create Your First Question</Button>
         </div>
@@ -543,7 +656,9 @@ export function AdminQuestionsClient({
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isSubmitting}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel disabled={isSubmitting}>
+              Cancel
+            </AlertDialogCancel>
             <AlertDialogAction
               onClick={(e) => {
                 e.preventDefault();
@@ -560,4 +675,3 @@ export function AdminQuestionsClient({
     </div>
   );
 }
-

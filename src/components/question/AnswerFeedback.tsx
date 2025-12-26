@@ -56,9 +56,12 @@ export function AnswerFeedback({
           : "bg-gradient-to-b from-red-600 to-red-800 text-white",
         className
       )}
+      role="alert"
+      aria-live="assertive"
+      aria-atomic="true"
     >
       {/* Icon */}
-      <div className="mb-4 flex justify-center">
+      <div className="mb-4 flex justify-center" aria-hidden="true">
         {isCorrect ? (
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -94,7 +97,7 @@ export function AnswerFeedback({
       </h2>
 
       {/* Points */}
-      <p className="mb-4 text-2xl font-semibold sm:text-3xl">
+      <p className="mb-4 text-2xl font-semibold sm:text-3xl" aria-label={`${isCorrect ? "Gained" : "Lost"} ${points} points`}>
         {isCorrect ? "+" : "-"}${points}
       </p>
 
@@ -104,7 +107,9 @@ export function AnswerFeedback({
           <p className="text-sm uppercase tracking-wider opacity-80">
             Correct Answer
           </p>
-          <p className="mt-1 text-xl font-semibold">{correctAnswer}</p>
+          <p className="mt-1 text-xl font-semibold" role="status">
+            {correctAnswer}
+          </p>
         </div>
       )}
 
@@ -114,10 +119,13 @@ export function AnswerFeedback({
         size="lg"
         variant="secondary"
         className="w-full sm:w-auto"
+        aria-label={`Continue to game board${autoNavigateDelay > 0 && countdown > 0 ? `, auto-navigating in ${countdown} seconds` : ""}`}
       >
         Continue to Game Board
         {autoNavigateDelay > 0 && countdown > 0 && (
-          <span className="ml-2 text-muted-foreground">({countdown}s)</span>
+          <span className="ml-2 text-muted-foreground" aria-hidden="true">
+            ({countdown}s)
+          </span>
         )}
       </Button>
     </div>

@@ -44,7 +44,11 @@ export function GameBoard({
     <div className="w-full">
       {/* Player Selection Warning */}
       {!isPlayerSelected && (
-        <div className="mb-4 rounded-lg bg-amber-500/20 border border-amber-500/50 px-4 py-3 text-center text-amber-200">
+        <div 
+          className="mb-4 rounded-lg bg-amber-500/20 border border-amber-500/50 px-4 py-3 text-center text-amber-200"
+          role="alert"
+          aria-live="polite"
+        >
           <p className="text-sm font-medium">
             Please select a player before choosing a question
           </p>
@@ -60,6 +64,9 @@ export function GameBoard({
           categories.length === 5 && "grid-cols-3 sm:grid-cols-5",
           categories.length >= 6 && "grid-cols-3 sm:grid-cols-4 lg:grid-cols-6"
         )}
+        role="grid"
+        aria-label="Jeopardy game board"
+        aria-describedby={!isPlayerSelected ? "player-warning" : undefined}
       >
         {categories.map((category) => (
           <CategoryColumn

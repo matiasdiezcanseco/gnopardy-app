@@ -39,7 +39,9 @@ export function GamePageClient({
   const [selectedPlayerId, setSelectedPlayerId] = useState<number | null>(null);
   const [questions, setQuestions] = useState(initialQuestions);
   const [showAddPlayer, setShowAddPlayer] = useState(false);
-  const [gameStatus, setGameStatus] = useState<"active" | "completed">(game.status);
+  const [gameStatus, setGameStatus] = useState<"active" | "completed">(
+    (game.status as "active" | "completed") || "active"
+  );
   const [winner, setWinner] = useState<Player | null>(null);
 
   const handlePlayerAdded = useCallback((player: Player) => {

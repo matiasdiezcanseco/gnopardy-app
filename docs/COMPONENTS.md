@@ -1,10 +1,10 @@
 # Components Guide 🧩
 
-This document covers the use of shadcn/ui components and component architecture in Geopardy.
+This document covers the use of shadcn/ui components and component architecture in Jeopardy.
 
 ## Overview
 
-Geopardy uses **shadcn/ui** for its component library. Unlike traditional component libraries, shadcn/ui components are copied directly into your project, giving you full control over customization.
+Jeopardy uses **shadcn/ui** for its component library. Unlike traditional component libraries, shadcn/ui components are copied directly into your project, giving you full control over customization.
 
 ## What is shadcn/ui?
 
@@ -51,11 +51,11 @@ pnpm dlx shadcn@latest add --all
 
 ---
 
-## Recommended Components for Geopardy
+## Recommended Components for Jeopardy
 
 ### Essential Components
 
-| Component       | Usage in Geopardy                             |
+| Component       | Usage in Jeopardy                             |
 | --------------- | --------------------------------------------- |
 | **Button**      | Submit answers, navigation, controls          |
 | **Card**        | Question display, category cards, score cards |

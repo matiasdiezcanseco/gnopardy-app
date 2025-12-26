@@ -1,10 +1,10 @@
 # Database Documentation 🗄️
 
-This document covers the PostgreSQL database setup, Drizzle ORM configuration, and schema design for Geopardy.
+This document covers the PostgreSQL database setup, Drizzle ORM configuration, and schema design for Jeopardy.
 
 ## Overview
 
-Geopardy uses **PostgreSQL** as its database with **Drizzle ORM** for type-safe database access.
+Jeopardy uses **PostgreSQL** as its database with **Drizzle ORM** for type-safe database access.
 
 ## Database Setup
 
@@ -24,10 +24,10 @@ You can use the provided script to start a PostgreSQL container:
 Or manually with Docker:
 
 ```bash
-docker run --name geopardy-db \
+docker run --name jeopardy-db \
   -e POSTGRES_USER=postgres \
   -e POSTGRES_PASSWORD=password \
-  -e POSTGRES_DB=geopardy \
+  -e POSTGRES_DB=jeopardy \
   -p 5432:5432 \
   -d postgres:16
 ```
@@ -41,7 +41,7 @@ postgresql://USER:PASSWORD@HOST:PORT/DATABASE
 Example:
 
 ```
-postgresql://postgres:password@localhost:5432/geopardy
+postgresql://postgres:password@localhost:5432/jeopardy
 ```
 
 ---
@@ -142,7 +142,7 @@ export const createTable = pgTableCreator((name) => `jeopardy-app_${name}`);
 
 ### Proposed Schema Structure
 
-The following schema is designed for the Geopardy game:
+The following schema is designed for the Jeopardy game:
 
 #### Categories Table
 

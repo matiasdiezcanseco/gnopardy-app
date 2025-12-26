@@ -1,6 +1,6 @@
-# Geopardy Documentation 📖
+# Jeopardy Documentation 📖
 
-Welcome to the Geopardy documentation! This folder contains all the information you need to understand, develop, and maintain the project.
+Welcome to the Jeopardy documentation! This folder contains all the information you need to understand, develop, and maintain the project.
 
 ## 📑 Documentation Index
 

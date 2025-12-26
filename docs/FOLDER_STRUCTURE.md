@@ -1,6 +1,6 @@
 # Folder Structure 📁
 
-This document explains the project organization and architecture of the Geopardy application.
+This document explains the project organization and architecture of the Jeopardy application.
 
 ## Project Root
 

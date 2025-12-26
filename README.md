@@ -1,10 +1,10 @@
-# Geopardy 🎯
+# Jeopardy 🎯
 
 A modern, interactive Jeopardy-style trivia game built with Next.js, featuring categories, multimedia questions, and real-time scoring.
 
-## 🎮 What is Geopardy?
+## 🎮 What is Jeopardy?
 
-Geopardy is a web-based trivia game inspired by the classic TV show Jeopardy. Players can:
+Jeopardy is a web-based trivia game inspired by the classic TV show Jeopardy. Players can:
 
 - **Browse Categories**: View a dashboard with multiple trivia categories
 - **Answer Questions**: Select questions of varying difficulty and point values

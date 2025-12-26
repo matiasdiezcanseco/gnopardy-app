@@ -1,10 +1,10 @@
 # Styling Guide 🎨
 
-This document covers the styling approach, Tailwind CSS configuration, and design conventions for Geopardy.
+This document covers the styling approach, Tailwind CSS configuration, and design conventions for Jeopardy.
 
 ## Overview
 
-Geopardy uses **Tailwind CSS 4** for styling with a utility-first approach. Components are styled using Tailwind classes, with shadcn/ui providing pre-built, customizable UI components.
+Jeopardy uses **Tailwind CSS 4** for styling with a utility-first approach. Components are styled using Tailwind classes, with shadcn/ui providing pre-built, customizable UI components.
 
 ## Tailwind CSS Setup
 
@@ -44,7 +44,7 @@ The main stylesheet (`src/styles/globals.css`) should include:
 
 ### Color Palette
 
-The Geopardy color scheme should reflect the game's exciting, competitive nature:
+The Jeopardy color scheme should reflect the game's exciting, competitive nature:
 
 | Color            | Usage                       | CSS Variable    |
 | ---------------- | --------------------------- | --------------- |

@@ -1,6 +1,6 @@
 # Environment Variables 🔐
 
-This document describes all environment variables required to run the Geopardy application.
+This document describes all environment variables required to run the Jeopardy application.
 
 ## Overview
 
@@ -55,10 +55,10 @@ postgresql://USER:PASSWORD@HOST:PORT/DATABASE
 
 ```bash
 # Local development
-DATABASE_URL="postgresql://postgres:password@localhost:5432/geopardy"
+DATABASE_URL="postgresql://postgres:password@localhost:5432/jeopardy"
 
 # Docker container
-DATABASE_URL="postgresql://postgres:password@localhost:5432/geopardy"
+DATABASE_URL="postgresql://postgres:password@localhost:5432/jeopardy"
 
 # Cloud hosted (example with Supabase)
 DATABASE_URL="postgresql://postgres:[PASSWORD]@db.[PROJECT].supabase.co:5432/postgres"
@@ -126,7 +126,7 @@ GOOGLE_CLIENT_SECRET="..."
 # AWS S3
 AWS_ACCESS_KEY_ID="..."
 AWS_SECRET_ACCESS_KEY="..."
-AWS_S3_BUCKET="geopardy-media"
+AWS_S3_BUCKET="jeopardy-media"
 AWS_REGION="us-east-1"
 
 # Or Cloudinary
@@ -139,8 +139,8 @@ CLOUDINARY_API_SECRET="..."
 
 ```bash
 # Public variables (accessible in browser)
-NEXT_PUBLIC_APP_URL="https://geopardy.example.com"
-NEXT_PUBLIC_WS_URL="wss://geopardy.example.com"
+NEXT_PUBLIC_APP_URL="https://jeopardy.example.com"
+NEXT_PUBLIC_WS_URL="wss://jeopardy.example.com"
 ```
 
 ---
@@ -165,7 +165,7 @@ Add at minimum:
 
 ```bash
 # .env
-DATABASE_URL="postgresql://postgres:password@localhost:5432/geopardy"
+DATABASE_URL="postgresql://postgres:password@localhost:5432/jeopardy"
 ```
 
 ### 3. Verify Configuration
@@ -180,7 +180,7 @@ The application will validate environment variables on startup. If any are missi
 
 ```bash
 # Database
-DATABASE_URL="postgresql://postgres:password@localhost:5432/geopardy"
+DATABASE_URL="postgresql://postgres:password@localhost:5432/jeopardy"
 
 # Environment
 NODE_ENV="development"
@@ -190,7 +190,7 @@ NODE_ENV="development"
 
 ```bash
 # Database (use secure credentials)
-DATABASE_URL="postgresql://user:secure-password@production-host:5432/geopardy"
+DATABASE_URL="postgresql://user:secure-password@production-host:5432/jeopardy"
 
 # Environment
 NODE_ENV="production"

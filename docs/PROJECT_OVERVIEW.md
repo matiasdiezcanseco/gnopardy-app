@@ -1,8 +1,8 @@
 # Project Overview 🎮
 
-## What is Geopardy?
+## What is Jeopardy?
 
-Geopardy is a modern web-based trivia game inspired by the classic TV game show "Jeopardy!". The application provides an interactive platform for playing trivia with friends, family, or colleagues, featuring customizable categories, multimedia questions, and real-time score tracking.
+Jeopardy is a modern web-based trivia game inspired by the classic TV game show "Jeopardy!". The application provides an interactive platform for playing trivia with friends, family, or colleagues, featuring customizable categories, multimedia questions, and real-time score tracking.
 
 ## Core Concept
 
@@ -27,7 +27,7 @@ The main interface displays a grid of categories and questions:
 
 ### ❓ Question Types
 
-Geopardy supports various question formats:
+Jeopardy supports various question formats:
 
 | Type                | Description                                         |
 | ------------------- | --------------------------------------------------- |
@@ -119,4 +119,4 @@ Potential features for future development:
 
 ---
 
-_Geopardy brings the excitement of classic trivia to your browser with modern web technologies._
+_Jeopardy brings the excitement of classic trivia to your browser with modern web technologies._

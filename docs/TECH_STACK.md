@@ -1,6 +1,6 @@
 # Tech Stack 🛠️
 
-This document outlines all technologies, frameworks, and libraries used in the Geopardy project.
+This document outlines all technologies, frameworks, and libraries used in the Jeopardy project.
 
 ## Core Technologies
 
@@ -8,7 +8,7 @@ This document outlines all technologies, frameworks, and libraries used in the G
 
 **Version**: `^15.2.3`
 
-Next.js is the React framework powering Geopardy. We use the **App Router** for modern React Server Components and improved routing.
+Next.js is the React framework powering Jeopardy. We use the **App Router** for modern React Server Components and improved routing.
 
 **Key Features Used**:
 

@@ -1,4 +1,4 @@
-# Cursor Rules for Geopardy Project
+# Cursor Rules for Jeopardy Project
 
 ## 📚 MANDATORY: Read Documentation First
 
@@ -63,7 +63,7 @@ The project has comprehensive documentation in the `docs/` folder. Always consul
 
 #### Database Patterns
 - Use Drizzle ORM as documented in `docs/DATABASE.md`
-- Table prefix: `jeopardy-app_` (not `geopardy-app_`)
+- Table prefix: `jeopardy-app_` (not `jeopardy-app_`)
 - Follow the schema patterns for categories, questions, answers, players, and games
 - Use type-safe queries with proper TypeScript inference
 

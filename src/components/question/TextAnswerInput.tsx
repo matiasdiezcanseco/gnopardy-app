@@ -53,7 +53,7 @@ export function TextAnswerInput({
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
           disabled={isSubmitting || disabled}
-          className="text-lg py-6"
+          className="text-base sm:text-lg py-4 sm:py-6 min-h-[48px]"
           autoFocus
         />
         {error && <p className="text-sm text-destructive">{error}</p>}
@@ -62,7 +62,7 @@ export function TextAnswerInput({
       <Button
         type="submit"
         size="lg"
-        className="w-full"
+        className="w-full min-h-[48px] text-base sm:text-lg"
         disabled={isSubmitting || disabled || !answer.trim()}
       >
         {isSubmitting ? (

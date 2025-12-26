@@ -37,7 +37,7 @@ export function MultipleChoice({
   return (
     <div className={cn("space-y-4", className)}>
       {/* Answer Options */}
-      <div className="space-y-3">
+      <div className="space-y-2 sm:space-y-3">
         {sortedAnswers.map((answer, index) => {
           const isSelected = selectedId === answer.id;
           const letter = optionLetters[index] ?? String(index + 1);
@@ -48,9 +48,10 @@ export function MultipleChoice({
               onClick={() => !disabled && !isSubmitting && setSelectedId(answer.id)}
               disabled={disabled || isSubmitting}
               className={cn(
-                "w-full flex items-center gap-4 rounded-lg p-4",
+                "w-full flex items-center gap-3 sm:gap-4 rounded-lg p-3 sm:p-4",
                 "text-left transition-all duration-200",
                 "border-2",
+                "min-h-[44px]", // Touch-friendly minimum height
                 isSelected
                   ? [
                       "bg-primary/10 border-primary",
@@ -66,8 +67,8 @@ export function MultipleChoice({
               {/* Option Letter */}
               <div
                 className={cn(
-                  "flex h-10 w-10 shrink-0 items-center justify-center rounded-full",
-                  "text-lg font-bold",
+                  "flex h-8 w-8 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-full",
+                  "text-base sm:text-lg font-bold",
                   isSelected
                     ? "bg-primary text-primary-foreground"
                     : "bg-muted text-muted-foreground"
@@ -77,7 +78,7 @@ export function MultipleChoice({
               </div>
 
               {/* Answer Text */}
-              <span className="text-lg">{answer.text}</span>
+              <span className="text-base sm:text-lg break-words flex-1">{answer.text}</span>
             </button>
           );
         })}
@@ -87,7 +88,7 @@ export function MultipleChoice({
       <Button
         onClick={handleSubmit}
         size="lg"
-        className="w-full"
+        className="w-full min-h-[48px]"
         disabled={isSubmitting || disabled || selectedId === null}
       >
         {isSubmitting ? (

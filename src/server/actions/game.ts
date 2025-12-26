@@ -222,6 +222,56 @@ export async function deleteGame(
 }
 
 // ============================================================================
+// Check Game Completion
+// ============================================================================
+export async function checkGameCompletion(
+  id: number
+): Promise<ActionResult<{ isComplete: boolean; winner?: Player | null }>> {
+  try {
+    // Get all questions
+    const allQuestions = await db.select().from(questions);
+
+    // Check if all questions are answered
+    const unansweredCount = allQuestions.filter((q) => !q.isAnswered).length;
+    const isComplete = unansweredCount === 0;
+
+    if (!isComplete) {
+      return { success: true, data: { isComplete: false } };
+    }
+
+    // Get the game to check if it's already marked as completed
+    const [game] = await db.select().from(games).where(eq(games.id, id));
+
+    if (!game) {
+      return { success: false, error: "Game not found" };
+    }
+
+    // If game is not yet completed, mark it as completed
+    if (game.status !== "completed") {
+      await updateGameStatus(id, "completed");
+    }
+
+    // Get all players and find winner
+    const gamePlayers = await db
+      .select()
+      .from(players)
+      .where(eq(players.gameId, id));
+
+    const winner =
+      gamePlayers.length > 0
+        ? gamePlayers.reduce((prev, current) =>
+            prev.score > current.score ? prev : current
+          )
+        : null;
+
+    return { success: true, data: { isComplete: true, winner } };
+  } catch (error) {
+    console.error("Error checking game completion:", error);
+    return { success: false, error: "Failed to check game completion" };
+  }
+}
+
+// ============================================================================
 // Reset Game (reset all question states and player scores)
 // ============================================================================
 export async function resetGame(

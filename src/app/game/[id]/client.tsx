@@ -1,12 +1,14 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import Link from "next/link";
 import { GameBoard } from "~/components/game/GameBoard";
 import { ScoreBoard } from "~/components/game/ScoreBoard";
 import { PlayerSelector } from "~/components/player/PlayerSelector";
 import { AddPlayer } from "~/components/player/AddPlayer";
+import { ResetGameButton } from "~/components/game/ResetGameButton";
 import { Button } from "~/components/ui/button";
+import { checkGameCompletion } from "~/server/actions/game";
 import type { Game, Category, Player } from "~/server/db/schema";
 
 interface QuestionWithCategory {
@@ -37,6 +39,8 @@ export function GamePageClient({
   const [selectedPlayerId, setSelectedPlayerId] = useState<number | null>(null);
   const [questions, setQuestions] = useState(initialQuestions);
   const [showAddPlayer, setShowAddPlayer] = useState(false);
+  const [gameStatus, setGameStatus] = useState<"active" | "completed">(game.status);
+  const [winner, setWinner] = useState<Player | null>(null);
 
   const handlePlayerAdded = useCallback((player: Player) => {
     setPlayers((prev) => [...prev, player]);
@@ -50,6 +54,20 @@ export function GamePageClient({
   // Check if game is completed (all questions answered)
   const allQuestionsAnswered = questions.every((q) => q.isAnswered);
 
+  // Check for game completion when questions change
+  useEffect(() => {
+    if (allQuestionsAnswered && gameStatus === "active") {
+      checkGameCompletion(game.id).then((result) => {
+        if (result.success && result.data.isComplete) {
+          setGameStatus("completed");
+          if (result.data.winner) {
+            setWinner(result.data.winner);
+          }
+        }
+      });
+    }
+  }, [allQuestionsAnswered, gameStatus, game.id]);
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-900 to-blue-950">
       {/* Header */}
@@ -58,11 +76,12 @@ export function GamePageClient({
           <Link href="/" className="text-xl font-bold text-white hover:text-amber-400 transition-colors">
             Jeopardy!
           </Link>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-4">
+            <ResetGameButton gameId={game.id} />
             <span className="text-sm text-muted-foreground">
               Game #{game.id}
             </span>
-            {game.status === "completed" && (
+            {gameStatus === "completed" && (
               <span className="rounded-full bg-green-500/20 px-3 py-1 text-xs font-medium text-green-400">
                 Completed
               </span>
@@ -112,13 +131,24 @@ export function GamePageClient({
                 <h2 className="text-3xl font-bold text-amber-400 mb-4">
                   🎉 Game Complete!
                 </h2>
+                {winner && (
+                  <div className="mb-6">
+                    <p className="text-xl text-white mb-2">Winner:</p>
+                    <p className="text-2xl font-bold text-amber-400">{winner.name}</p>
+                    <p className="text-lg text-white/80">
+                      ${winner.score.toLocaleString()} points
+                    </p>
+                  </div>
+                )}
                 <p className="text-lg text-white/80 mb-6">
                   All questions have been answered. Check the scoreboard for
                   final results!
                 </p>
-                <Link href="/">
-                  <Button size="lg">Start New Game</Button>
-                </Link>
+                <div className="flex gap-4 justify-center">
+                  <Link href="/">
+                    <Button size="lg">Start New Game</Button>
+                  </Link>
+                </div>
               </div>
             ) : (
               <GameBoard

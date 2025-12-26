@@ -40,53 +40,86 @@ export function QuestionPageClient({
 }: QuestionPageClientProps) {
   const [isPending, startTransition] = useTransition();
   const [result, setResult] = useState<AnswerResult | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const handleTextSubmit = (answer: string) => {
+    setError(null);
     startTransition(async () => {
-      const validationResult = await validateTextAnswer(question.id, answer);
+      try {
+        const validationResult = await validateTextAnswer(question.id, answer);
 
-      if (!validationResult.success) {
-        console.error(validationResult.error);
-        return;
+        if (!validationResult.success) {
+          setError(validationResult.error);
+          return;
+        }
+
+        const { isCorrect, correctAnswer, points } = validationResult.data;
+
+        // Update player score
+        const pointsDelta = isCorrect ? points : -points;
+        const scoreResult = await updatePlayerScore(player.id, pointsDelta);
+
+        if (!scoreResult.success) {
+          setError("Failed to update score. Please try again.");
+          return;
+        }
+
+        // Mark question as answered
+        const markResult = await markQuestionAsAnswered(question.id);
+
+        if (!markResult.success) {
+          setError("Failed to mark question as answered.");
+          return;
+        }
+
+        // Show result
+        setResult({ isCorrect, correctAnswer, points });
+      } catch (err) {
+        setError("An unexpected error occurred. Please try again.");
+        console.error("Error submitting answer:", err);
       }
-
-      const { isCorrect, correctAnswer, points } = validationResult.data;
-
-      // Update player score
-      const pointsDelta = isCorrect ? points : -points;
-      await updatePlayerScore(player.id, pointsDelta);
-
-      // Mark question as answered
-      await markQuestionAsAnswered(question.id);
-
-      // Show result
-      setResult({ isCorrect, correctAnswer, points });
     });
   };
 
   const handleMultipleChoiceSubmit = (answerId: number) => {
+    setError(null);
     startTransition(async () => {
-      const validationResult = await validateMultipleChoiceAnswer(
-        question.id,
-        answerId
-      );
+      try {
+        const validationResult = await validateMultipleChoiceAnswer(
+          question.id,
+          answerId
+        );
 
-      if (!validationResult.success) {
-        console.error(validationResult.error);
-        return;
+        if (!validationResult.success) {
+          setError(validationResult.error);
+          return;
+        }
+
+        const { isCorrect, correctAnswer, points } = validationResult.data;
+
+        // Update player score
+        const pointsDelta = isCorrect ? points : -points;
+        const scoreResult = await updatePlayerScore(player.id, pointsDelta);
+
+        if (!scoreResult.success) {
+          setError("Failed to update score. Please try again.");
+          return;
+        }
+
+        // Mark question as answered
+        const markResult = await markQuestionAsAnswered(question.id);
+
+        if (!markResult.success) {
+          setError("Failed to mark question as answered.");
+          return;
+        }
+
+        // Show result
+        setResult({ isCorrect, correctAnswer, points });
+      } catch (err) {
+        setError("An unexpected error occurred. Please try again.");
+        console.error("Error submitting answer:", err);
       }
-
-      const { isCorrect, correctAnswer, points } = validationResult.data;
-
-      // Update player score
-      const pointsDelta = isCorrect ? points : -points;
-      await updatePlayerScore(player.id, pointsDelta);
-
-      // Mark question as answered
-      await markQuestionAsAnswered(question.id);
-
-      // Show result
-      setResult({ isCorrect, correctAnswer, points });
     });
   };
 
@@ -144,8 +177,8 @@ export function QuestionPageClient({
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-8">
-        <div className="mx-auto max-w-2xl">
+      <main className="container mx-auto px-4 py-4 sm:py-6 md:py-8">
+        <div className="mx-auto max-w-2xl lg:max-w-3xl">
           {result ? (
             /* Answer Feedback */
             <AnswerFeedback
@@ -156,20 +189,25 @@ export function QuestionPageClient({
             />
           ) : (
             /* Question and Answer Input */
-            <div className="space-y-8">
+            <div className="space-y-6 sm:space-y-8">
               <QuestionView question={question} category={question.category} />
 
-              <div className="rounded-xl border border-white/10 bg-black/20 p-6 backdrop-blur">
-                <h3 className="mb-4 text-lg font-semibold text-white">
+              <div className="rounded-lg sm:rounded-xl border border-white/10 bg-black/20 p-4 sm:p-6 backdrop-blur">
+                <h3 className="mb-4 text-base sm:text-lg font-semibold text-white">
                   Your Answer
                 </h3>
+                {error && (
+                  <div className="mb-4 rounded-md bg-destructive/10 border border-destructive/20 p-3 text-sm text-destructive">
+                    {error}
+                  </div>
+                )}
                 {renderAnswerInput()}
               </div>
 
               {/* Skip Button */}
               <div className="text-center">
                 <Link href={`/game/${gameId}`}>
-                  <Button variant="ghost" className="text-muted-foreground">
+                  <Button variant="ghost" className="text-muted-foreground" size="sm">
                     Skip Question
                   </Button>
                 </Link>

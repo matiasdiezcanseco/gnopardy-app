@@ -8,5 +8,5 @@ export default {
   dbCredentials: {
     url: env.DATABASE_URL,
   },
-  tablesFilter: ["geopardy-app_*"],
+  tablesFilter: ["jeopardy-app_*"],
 } satisfies Config;

@@ -33,6 +33,8 @@ export {
   updateAnswer,
   deleteAnswer,
   deleteAnswersByQuestionId,
+  validateTextAnswer,
+  validateMultipleChoiceAnswer,
 } from "./answer";
 
 // Player Actions

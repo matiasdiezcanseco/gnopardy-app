@@ -1,6 +1,6 @@
 # Feature 13: Question Display Component
 
-**Status**: Pending  
+**Status**: Completed  
 **Priority**: High  
 **Category**: Frontend/Components
 

@@ -1,6 +1,6 @@
 # Feature 12: Question Page Route
 
-**Status**: Pending  
+**Status**: Completed  
 **Priority**: Critical  
 **Category**: Frontend/Routing
 

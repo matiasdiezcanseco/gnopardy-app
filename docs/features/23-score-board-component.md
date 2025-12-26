@@ -1,6 +1,6 @@
 # Feature 23: Score Board Component
 
-**Status**: Pending  
+**Status**: Completed  
 **Priority**: High  
 **Category**: Frontend/Components
 

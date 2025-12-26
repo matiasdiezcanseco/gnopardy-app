@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "~/server/db";
-import { answers, type Answer, type NewAnswer } from "~/server/db/schema";
+import { answers, questions, type Answer, type NewAnswer } from "~/server/db/schema";
 import { eq, and, asc } from "drizzle-orm";
 import { z } from "zod";
 
@@ -215,6 +215,126 @@ export async function deleteAnswersByQuestionId(
   } catch (error) {
     console.error("Error deleting answers:", error);
     return { success: false, error: "Failed to delete answers" };
+  }
+}
+
+// ============================================================================
+// Validate Answer
+// ============================================================================
+type ValidationResult = {
+  isCorrect: boolean;
+  correctAnswer?: string;
+  points: number;
+};
+
+/**
+ * Validates a text answer against correct answers for a question
+ * Supports case-insensitive matching and whitespace trimming
+ */
+export async function validateTextAnswer(
+  questionId: number,
+  submittedAnswer: string
+): Promise<ActionResult<ValidationResult>> {
+  try {
+    // Get the question for points
+    const [question] = await db
+      .select()
+      .from(questions)
+      .where(eq(questions.id, questionId));
+
+    if (!question) {
+      return { success: false, error: "Question not found" };
+    }
+
+    // Get correct answers
+    const correctAnswers = await db
+      .select()
+      .from(answers)
+      .where(
+        and(eq(answers.questionId, questionId), eq(answers.isCorrect, true))
+      );
+
+    if (correctAnswers.length === 0) {
+      return { success: false, error: "No correct answer found for question" };
+    }
+
+    // Normalize the submitted answer
+    const normalizedSubmission = submittedAnswer.trim().toLowerCase();
+
+    // Check if any correct answer matches
+    const isCorrect = correctAnswers.some((answer) => {
+      const normalizedCorrect = answer.text.trim().toLowerCase();
+      return normalizedSubmission === normalizedCorrect;
+    });
+
+    return {
+      success: true,
+      data: {
+        isCorrect,
+        correctAnswer: isCorrect ? undefined : correctAnswers[0]?.text,
+        points: question.points,
+      },
+    };
+  } catch (error) {
+    console.error("Error validating answer:", error);
+    return { success: false, error: "Failed to validate answer" };
+  }
+}
+
+/**
+ * Validates a multiple choice answer by checking if the selected answer ID is correct
+ */
+export async function validateMultipleChoiceAnswer(
+  questionId: number,
+  selectedAnswerId: number
+): Promise<ActionResult<ValidationResult>> {
+  try {
+    // Get the question for points
+    const [question] = await db
+      .select()
+      .from(questions)
+      .where(eq(questions.id, questionId));
+
+    if (!question) {
+      return { success: false, error: "Question not found" };
+    }
+
+    // Get the selected answer
+    const [selectedAnswer] = await db
+      .select()
+      .from(answers)
+      .where(eq(answers.id, selectedAnswerId));
+
+    if (!selectedAnswer) {
+      return { success: false, error: "Answer not found" };
+    }
+
+    // Check if selected answer is correct
+    const isCorrect = selectedAnswer.isCorrect;
+
+    // If incorrect, get the correct answer
+    let correctAnswerText: string | undefined;
+    if (!isCorrect) {
+      const correctAnswers = await db
+        .select()
+        .from(answers)
+        .where(
+          and(eq(answers.questionId, questionId), eq(answers.isCorrect, true))
+        );
+      correctAnswerText = correctAnswers[0]?.text;
+    }
+
+    return {
+      success: true,
+      data: {
+        isCorrect,
+        correctAnswer: correctAnswerText,
+        points: question.points,
+      },
+    };
+  } catch (error) {
+    console.error("Error validating answer:", error);
+    return { success: false, error: "Failed to validate answer" };
   }
 }
 

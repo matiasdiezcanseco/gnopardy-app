@@ -112,6 +112,9 @@ export function GamePageClient({
   // Check if game is completed (all questions answered)
   const allQuestionsAnswered = questions.every((q) => q.isAnswered);
 
+  // Check if there's a Final Jeopardy category
+  const hasFinalJeopardy = categories.some((c) => c.isFinalJeopardy);
+
   // Check for game completion when questions change
   useEffect(() => {
     if (allQuestionsAnswered && gameStatus === "active") {
@@ -127,24 +130,30 @@ export function GamePageClient({
   }, [allQuestionsAnswered, gameStatus, game.id]);
 
   return (
-    <div className={cn(
-      "bg-background text-foreground min-h-screen transition-colors duration-300",
-      isFullscreen && "h-screen overflow-hidden"
-    )}>
+    <div
+      className={cn(
+        "bg-background text-foreground min-h-screen transition-colors duration-300",
+        isFullscreen && "h-screen overflow-hidden",
+      )}
+    >
       {/* Header */}
-      <header className={cn(
-        "bg-card/50 border-b backdrop-blur",
-        isFullscreen ? "sticky top-0 z-50 py-2" : "sticky top-0 z-50"
-      )}>
-        <div className={cn(
-          "flex w-full items-center justify-between px-4",
-          isFullscreen ? "py-2" : "py-4 sm:px-6 lg:px-8"
-        )}>
+      <header
+        className={cn(
+          "bg-card/50 border-b backdrop-blur",
+          isFullscreen ? "sticky top-0 z-50 py-2" : "sticky top-0 z-50",
+        )}
+      >
+        <div
+          className={cn(
+            "flex w-full items-center justify-between px-4",
+            isFullscreen ? "py-2" : "py-4 sm:px-6 lg:px-8",
+          )}
+        >
           <Link
             href="/"
             className={cn(
               "text-primary hover:text-primary/80 font-bold transition-colors",
-              isFullscreen ? "text-base" : "text-xl"
+              isFullscreen ? "text-base" : "text-xl",
             )}
           >
             Jeopardy!
@@ -158,25 +167,49 @@ export function GamePageClient({
             >
               {isFullscreen ? (
                 <>
-                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  <svg
+                    className="h-4 w-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
                   </svg>
                   <span className="ml-2 hidden sm:inline">Exit</span>
                 </>
               ) : (
                 <>
-                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                  <svg
+                    className="h-4 w-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"
+                    />
                   </svg>
                   <span className="ml-2 hidden sm:inline">Fullscreen</span>
                 </>
               )}
             </Button>
             {!isFullscreen && <ResetGameButton gameId={game.id} />}
-            <span className={cn(
-              "text-muted-foreground font-medium",
-              isFullscreen ? "text-xs" : "text-sm"
-            )}>
+            <span
+              className={cn(
+                "text-muted-foreground font-medium",
+                isFullscreen ? "text-xs" : "text-sm",
+              )}
+            >
               Game #{game.id}
             </span>
             {gameStatus === "completed" && (
@@ -188,19 +221,25 @@ export function GamePageClient({
         </div>
       </header>
 
-      <main className={cn(
-        "w-full",
-        isFullscreen ? "h-[calc(100vh-56px)] overflow-hidden" : "px-4 py-8 sm:px-6 lg:px-8"
-      )}>
+      <main
+        className={cn(
+          "w-full",
+          isFullscreen
+            ? "h-[calc(100vh-56px)] overflow-hidden"
+            : "px-4 py-8 sm:px-6 lg:px-8",
+        )}
+      >
         {isFullscreen ? (
           /* Fullscreen Layout */
           <div className="flex h-full flex-col gap-2 p-2">
             {/* Compact Top Bar - Player Selection and Scoreboard */}
             <div className="flex gap-2">
               {/* Compact Player Selection */}
-              <div className="bg-card/80 backdrop-blur rounded-lg border p-2 flex-shrink-0">
+              <div className="bg-card/80 flex-shrink-0 rounded-lg border p-2 backdrop-blur">
                 <div className="mb-2 flex items-center justify-between gap-2">
-                  <h3 className="text-xs font-semibold text-foreground">Player</h3>
+                  <h3 className="text-foreground text-xs font-semibold">
+                    Player
+                  </h3>
                   <Button
                     variant="outline"
                     size="sm"
@@ -221,9 +260,9 @@ export function GamePageClient({
                 )}
 
                 {/* Compact Player Selector */}
-                <div className="flex gap-1 flex-wrap max-w-md">
+                <div className="flex max-w-md flex-wrap gap-1">
                   {players.length === 0 ? (
-                    <div className="text-xs text-muted-foreground py-2">
+                    <div className="text-muted-foreground py-2 text-xs">
                       Add players to start
                     </div>
                   ) : (
@@ -242,10 +281,10 @@ export function GamePageClient({
                           onClick={() => handleSelectPlayer(player.id)}
                           className={cn(
                             "flex items-center gap-1.5 rounded-md px-2 py-1.5 text-xs",
-                            "transition-all duration-200 border",
+                            "border transition-all duration-200",
                             isSelected
                               ? "bg-primary/10 text-primary border-primary shadow-md"
-                              : "bg-card text-card-foreground border-border hover:bg-accent hover:border-accent"
+                              : "bg-card text-card-foreground border-border hover:bg-accent hover:border-accent",
                           )}
                           title={`${player.name} - $${player.score.toLocaleString()}`}
                         >
@@ -254,17 +293,23 @@ export function GamePageClient({
                               "flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold",
                               isSelected
                                 ? "bg-primary text-primary-foreground"
-                                : "bg-secondary text-secondary-foreground"
+                                : "bg-secondary text-secondary-foreground",
                             )}
                           >
                             {initials}
                           </div>
                           <div className="text-left">
-                            <div className="font-medium leading-none">{player.name}</div>
-                            <div className={cn(
-                              "text-xs leading-none mt-0.5",
-                              isSelected ? "text-primary" : "text-muted-foreground"
-                            )}>
+                            <div className="leading-none font-medium">
+                              {player.name}
+                            </div>
+                            <div
+                              className={cn(
+                                "mt-0.5 text-xs leading-none",
+                                isSelected
+                                  ? "text-primary"
+                                  : "text-muted-foreground",
+                              )}
+                            >
                               ${player.score.toLocaleString()}
                             </div>
                           </div>
@@ -276,9 +321,11 @@ export function GamePageClient({
               </div>
 
               {/* Compact Scoreboard */}
-              <div className="bg-card/80 backdrop-blur rounded-lg border p-2 flex-1 max-w-sm">
-                <h3 className="text-xs font-semibold text-foreground mb-2">Scoreboard</h3>
-                <div className="space-y-1 max-h-24 overflow-y-auto fullscreen-scrollbar">
+              <div className="bg-card/80 max-w-sm flex-1 rounded-lg border p-2 backdrop-blur">
+                <h3 className="text-foreground mb-2 text-xs font-semibold">
+                  Scoreboard
+                </h3>
+                <div className="fullscreen-scrollbar max-h-24 space-y-1 overflow-y-auto">
                   {[...players]
                     .sort((a, b) => b.score - a.score)
                     .slice(0, 5)
@@ -288,15 +335,15 @@ export function GamePageClient({
                         className={cn(
                           "flex items-center justify-between gap-2 rounded px-2 py-1",
                           selectedPlayerId === player.id
-                            ? "bg-primary/10 border border-primary/20"
-                            : "bg-card/50"
+                            ? "bg-primary/10 border-primary/20 border"
+                            : "bg-card/50",
                         )}
                       >
-                        <div className="flex items-center gap-2 flex-1 min-w-0">
-                          <span className="text-xs font-bold text-muted-foreground w-4">
+                        <div className="flex min-w-0 flex-1 items-center gap-2">
+                          <span className="text-muted-foreground w-4 text-xs font-bold">
                             #{index + 1}
                           </span>
-                          <span className="text-xs font-medium truncate">
+                          <span className="truncate text-xs font-medium">
                             {player.name}
                           </span>
                         </div>
@@ -312,13 +359,15 @@ export function GamePageClient({
             {/* Main Game Board - Full Focus */}
             <div className="flex-1 overflow-auto">
               {allQuestionsAnswered ? (
-                <div className="border-secondary bg-card rounded-xl border p-12 text-center shadow-md h-full flex flex-col items-center justify-center">
+                <div className="border-secondary bg-card flex h-full flex-col items-center justify-center rounded-xl border p-12 text-center shadow-md">
                   <h2 className="text-primary mb-6 text-3xl font-bold">
                     🎉 Game Complete!
                   </h2>
                   {winner && (
                     <div className="bg-secondary/10 border-secondary/20 mb-8 inline-block min-w-[300px] rounded-lg border p-6">
-                      <p className="text-muted-foreground mb-2 text-xl">Winner</p>
+                      <p className="text-muted-foreground mb-2 text-xl">
+                        Winner
+                      </p>
                       <p className="text-primary mb-2 text-4xl font-bold">
                         {winner.name}
                       </p>
@@ -347,6 +396,7 @@ export function GamePageClient({
                   questions={questions}
                   gameId={game.id}
                   selectedPlayerId={selectedPlayerId}
+                  hasFinalJeopardy={hasFinalJeopardy}
                 />
               )}
             </div>
@@ -354,94 +404,97 @@ export function GamePageClient({
         ) : (
           /* Regular Layout */
           <div className="grid gap-8 lg:grid-cols-[1fr_320px]">
-          {/* Main Game Area */}
-          <div className="space-y-8">
-            {/* Player Selection */}
-            <div className="bg-card rounded-xl border p-6 shadow-sm">
-              <div className="mb-6 flex items-center justify-between">
-                <h2 className="text-foreground text-lg font-bold">
-                  Select Player
-                </h2>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setShowAddPlayer(!showAddPlayer)}
-                >
-                  {showAddPlayer ? "Cancel" : "+ Add Player"}
-                </Button>
+            {/* Main Game Area */}
+            <div className="space-y-8">
+              {/* Player Selection */}
+              <div className="bg-card rounded-xl border p-6 shadow-sm">
+                <div className="mb-6 flex items-center justify-between">
+                  <h2 className="text-foreground text-lg font-bold">
+                    Select Player
+                  </h2>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowAddPlayer(!showAddPlayer)}
+                  >
+                    {showAddPlayer ? "Cancel" : "+ Add Player"}
+                  </Button>
+                </div>
+
+                {showAddPlayer && (
+                  <div className="mb-6">
+                    <AddPlayer
+                      gameId={game.id}
+                      onPlayerAdded={handlePlayerAdded}
+                    />
+                  </div>
+                )}
+
+                <PlayerSelector
+                  players={players}
+                  selectedPlayerId={selectedPlayerId}
+                  onSelectPlayer={handleSelectPlayer}
+                />
               </div>
 
-              {showAddPlayer && (
-                <div className="mb-6">
-                  <AddPlayer
-                    gameId={game.id}
-                    onPlayerAdded={handlePlayerAdded}
-                  />
+              {/* Game Board */}
+              {allQuestionsAnswered ? (
+                <div className="border-secondary bg-card rounded-xl border p-12 text-center shadow-md">
+                  <h2 className="text-primary mb-6 text-3xl font-bold">
+                    🎉 Game Complete!
+                  </h2>
+                  {winner && (
+                    <div className="bg-secondary/10 border-secondary/20 mb-8 inline-block min-w-[300px] rounded-lg border p-6">
+                      <p className="text-muted-foreground mb-2 text-xl">
+                        Winner
+                      </p>
+                      <p className="text-primary mb-2 text-4xl font-bold">
+                        {winner.name}
+                      </p>
+                      <p className="text-foreground text-2xl font-semibold">
+                        ${winner.score.toLocaleString()}
+                      </p>
+                    </div>
+                  )}
+                  <p className="text-muted-foreground mb-8 text-lg">
+                    All questions have been answered. Check the scoreboard for
+                    final results!
+                  </p>
+                  <div className="flex justify-center gap-4">
+                    <Link href="/">
+                      <Button size="lg" className="px-8">
+                        Start New Game
+                      </Button>
+                    </Link>
+                  </div>
                 </div>
+              ) : (
+                <GameBoard
+                  categories={categories}
+                  questions={questions}
+                  gameId={game.id}
+                  selectedPlayerId={selectedPlayerId}
+                  hasFinalJeopardy={hasFinalJeopardy}
+                />
               )}
+            </div>
 
-              <PlayerSelector
+            {/* Sidebar - Scoreboard */}
+            <aside className="space-y-6 lg:sticky lg:top-24 lg:self-start">
+              <ScoreBoard
                 players={players}
                 selectedPlayerId={selectedPlayerId}
                 onSelectPlayer={handleSelectPlayer}
+                title="Scoreboard"
               />
-            </div>
 
-            {/* Game Board */}
-            {allQuestionsAnswered ? (
-              <div className="border-secondary bg-card rounded-xl border p-12 text-center shadow-md">
-                <h2 className="text-primary mb-6 text-3xl font-bold">
-                  🎉 Game Complete!
-                </h2>
-                {winner && (
-                  <div className="bg-secondary/10 border-secondary/20 mb-8 inline-block min-w-[300px] rounded-lg border p-6">
-                    <p className="text-muted-foreground mb-2 text-xl">Winner</p>
-                    <p className="text-primary mb-2 text-4xl font-bold">
-                      {winner.name}
-                    </p>
-                    <p className="text-foreground text-2xl font-semibold">
-                      ${winner.score.toLocaleString()}
-                    </p>
-                  </div>
-                )}
-                <p className="text-muted-foreground mb-8 text-lg">
-                  All questions have been answered. Check the scoreboard for
-                  final results!
-                </p>
-                <div className="flex justify-center gap-4">
-                  <Link href="/">
-                    <Button size="lg" className="px-8">
-                      Start New Game
-                    </Button>
-                  </Link>
-                </div>
-              </div>
-            ) : (
-              <GameBoard
-                categories={categories}
-                questions={questions}
-                gameId={game.id}
-                selectedPlayerId={selectedPlayerId}
+              {/* Manual Score Adjustment */}
+              <ManualScoreAdjustment
+                players={players}
+                onScoreUpdated={handleScoreUpdated}
               />
-            )}
+            </aside>
           </div>
-
-          {/* Sidebar - Scoreboard */}
-          <aside className="space-y-6 lg:sticky lg:top-24 lg:self-start">
-            <ScoreBoard
-              players={players}
-              selectedPlayerId={selectedPlayerId}
-              onSelectPlayer={handleSelectPlayer}
-              title="Scoreboard"
-            />
-
-            {/* Manual Score Adjustment */}
-            <ManualScoreAdjustment
-              players={players}
-              onScoreUpdated={handleScoreUpdated}
-            />
-          </aside>
-        </div>
         )}
       </main>
     </div>

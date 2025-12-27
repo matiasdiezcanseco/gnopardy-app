@@ -15,10 +15,7 @@ export const games = createTable(
     id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
     name: d.varchar({ length: 256 }),
     status: d.varchar({ length: 50 }).default("active").notNull(), // active, completed
-    createdAt: d
-      .timestamp({ withTimezone: true })
-      .defaultNow()
-      .notNull(),
+    createdAt: d.timestamp({ withTimezone: true }).defaultNow().notNull(),
     completedAt: d.timestamp({ withTimezone: true }),
   }),
   (t) => [index("game_status_idx").on(t.status)],
@@ -34,13 +31,14 @@ export const categories = createTable(
     name: d.varchar({ length: 256 }).notNull(),
     description: d.text(),
     color: d.varchar({ length: 7 }), // Hex color code (e.g., #FF5733)
-    createdAt: d
-      .timestamp({ withTimezone: true })
-      .defaultNow()
-      .notNull(),
+    isFinalJeopardy: d.boolean().default(false).notNull(), // Flag for Final Jeopardy category
+    createdAt: d.timestamp({ withTimezone: true }).defaultNow().notNull(),
     updatedAt: d.timestamp({ withTimezone: true }).$onUpdate(() => new Date()),
   }),
-  (t) => [index("category_name_idx").on(t.name)],
+  (t) => [
+    index("category_name_idx").on(t.name),
+    index("category_final_jeopardy_idx").on(t.isFinalJeopardy),
+  ],
 );
 
 // ============================================================================
@@ -59,10 +57,7 @@ export const questions = createTable(
     type: d.varchar({ length: 50 }).notNull().default("text"), // text, multiple_choice, audio, video, image
     mediaUrl: d.text(), // URL to audio/video/image
     isAnswered: d.boolean().default(false).notNull(),
-    createdAt: d
-      .timestamp({ withTimezone: true })
-      .defaultNow()
-      .notNull(),
+    createdAt: d.timestamp({ withTimezone: true }).defaultNow().notNull(),
     updatedAt: d.timestamp({ withTimezone: true }).$onUpdate(() => new Date()),
   }),
   (t) => [
@@ -98,13 +93,8 @@ export const players = createTable(
     id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
     name: d.varchar({ length: 256 }).notNull(),
     score: d.integer().default(0).notNull(),
-    gameId: d
-      .integer()
-      .references(() => games.id, { onDelete: "cascade" }),
-    createdAt: d
-      .timestamp({ withTimezone: true })
-      .defaultNow()
-      .notNull(),
+    gameId: d.integer().references(() => games.id, { onDelete: "cascade" }),
+    createdAt: d.timestamp({ withTimezone: true }).defaultNow().notNull(),
   }),
   (t) => [
     index("player_game_idx").on(t.gameId),
@@ -154,10 +144,7 @@ export const gameHistory = createTable(
     totalQuestions: d.integer().notNull(),
     answeredQuestions: d.integer().notNull(),
     duration: d.integer(), // Duration in seconds
-    completedAt: d
-      .timestamp({ withTimezone: true })
-      .defaultNow()
-      .notNull(),
+    completedAt: d.timestamp({ withTimezone: true }).defaultNow().notNull(),
   }),
   (t) => [
     index("game_history_game_idx").on(t.gameId),
@@ -216,15 +203,46 @@ export const answerHistory = createTable(
     isCorrect: d.boolean().notNull(),
     pointsEarned: d.integer().notNull(),
     submittedAnswer: d.text(),
-    answeredAt: d
-      .timestamp({ withTimezone: true })
-      .defaultNow()
-      .notNull(),
+    answeredAt: d.timestamp({ withTimezone: true }).defaultNow().notNull(),
   }),
   (t) => [
     index("answer_history_game_idx").on(t.gameId),
     index("answer_history_player_idx").on(t.playerId),
     index("answer_history_question_idx").on(t.questionId),
+  ],
+);
+
+// ============================================================================
+// Final Jeopardy Wagers Table
+// Tracks player wagers and answers for Final Jeopardy
+// ============================================================================
+export const finalJeopardyWagers = createTable(
+  "final_jeopardy_wager",
+  (d) => ({
+    id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
+    gameId: d
+      .integer()
+      .references(() => games.id, { onDelete: "cascade" })
+      .notNull(),
+    playerId: d
+      .integer()
+      .references(() => players.id, { onDelete: "cascade" })
+      .notNull(),
+    questionId: d
+      .integer()
+      .references(() => questions.id, { onDelete: "cascade" })
+      .notNull(),
+    wagerAmount: d.integer().notNull(), // Amount wagered by the player
+    submittedAnswer: d.text(), // Player's answer
+    isCorrect: d.boolean(), // Whether the answer was correct
+    hasAnswered: d.boolean().default(false).notNull(), // Whether player has answered
+    createdAt: d.timestamp({ withTimezone: true }).defaultNow().notNull(),
+    answeredAt: d.timestamp({ withTimezone: true }),
+  }),
+  (t) => [
+    index("final_jeopardy_wager_game_idx").on(t.gameId),
+    index("final_jeopardy_wager_player_idx").on(t.playerId),
+    index("final_jeopardy_wager_question_idx").on(t.questionId),
   ],
 );
 
@@ -257,3 +275,6 @@ export type NewPlayerStatistics = typeof playerStatistics.$inferInsert;
 
 export type AnswerHistory = typeof answerHistory.$inferSelect;
 export type NewAnswerHistory = typeof answerHistory.$inferInsert;
+
+export type FinalJeopardyWager = typeof finalJeopardyWagers.$inferSelect;
+export type NewFinalJeopardyWager = typeof finalJeopardyWagers.$inferInsert;

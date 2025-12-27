@@ -15,6 +15,7 @@ const createCategorySchema = z.object({
     .string()
     .regex(/^#[0-9A-Fa-f]{6}$/, "Color must be a valid hex code (e.g., #FF5733)")
     .optional(),
+  isFinalJeopardy: z.boolean().optional().default(false),
 });
 
 const updateCategorySchema = createCategorySchema.partial();

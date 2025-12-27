@@ -6,6 +6,7 @@ import { cn } from "~/lib/utils";
 import { Input } from "~/components/ui/input";
 import { Textarea } from "~/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
+import { Badge } from "~/components/ui/badge";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -39,6 +40,7 @@ export function AdminCategoriesClient({
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [color, setColor] = useState("#1e40af");
+  const [isFinalJeopardy, setIsFinalJeopardy] = useState(false);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -47,6 +49,7 @@ export function AdminCategoriesClient({
     setName("");
     setDescription("");
     setColor("#1e40af");
+    setIsFinalJeopardy(false);
     setEditingId(null);
     setIsCreating(false);
     setError(null);
@@ -56,6 +59,7 @@ export function AdminCategoriesClient({
     setName(category.name);
     setDescription(category.description ?? "");
     setColor(category.color ?? "#1e40af");
+    setIsFinalJeopardy(category.isFinalJeopardy ?? false);
     setEditingId(category.id);
     setIsCreating(false);
     setError(null);
@@ -72,12 +76,27 @@ export function AdminCategoriesClient({
     setIsSubmitting(true);
 
     try {
+      // Check if trying to create another Final Jeopardy category
+      if (isFinalJeopardy && editingId === null) {
+        const existingFinalJeopardy = categories.find(
+          (cat) => cat.isFinalJeopardy && cat.id !== editingId,
+        );
+        if (existingFinalJeopardy) {
+          setError(
+            "Only one Final Jeopardy category is allowed. Please edit or delete the existing one.",
+          );
+          setIsSubmitting(false);
+          return;
+        }
+      }
+
       if (editingId !== null) {
         // Update existing category
         const result = await updateCategory(editingId, {
           name,
           description: description || null,
           color,
+          isFinalJeopardy,
         });
 
         if (result.success) {
@@ -94,6 +113,7 @@ export function AdminCategoriesClient({
           name,
           description: description || null,
           color,
+          isFinalJeopardy,
         });
 
         if (result.success) {
@@ -208,6 +228,30 @@ export function AdminCategoriesClient({
                 </div>
               </div>
 
+              <div className="flex items-center gap-2 rounded-lg border p-4">
+                <input
+                  type="checkbox"
+                  id="isFinalJeopardy"
+                  checked={isFinalJeopardy}
+                  onChange={(e) => setIsFinalJeopardy(e.target.checked)}
+                  className="h-4 w-4 rounded border-gray-300"
+                  disabled={isSubmitting}
+                />
+                <div className="flex-1">
+                  <label
+                    htmlFor="isFinalJeopardy"
+                    className="cursor-pointer text-sm font-medium"
+                  >
+                    Final Jeopardy Category
+                  </label>
+                  <p className="text-muted-foreground mt-1 text-xs">
+                    This category will only be accessible after all other
+                    questions are answered. Only one Final Jeopardy category is
+                    allowed per game.
+                  </p>
+                </div>
+              </div>
+
               <Button type="submit" disabled={isSubmitting || !name.trim()}>
                 {isSubmitting
                   ? "Saving..."
@@ -230,14 +274,24 @@ export function AdminCategoriesClient({
                 backgroundColor: category.color ?? undefined,
               }}
             >
-              <CardTitle
-                className={cn(
-                  "text-card-foreground",
-                  category.color && "text-white",
+              <div className="flex items-center justify-between gap-2">
+                <CardTitle
+                  className={cn(
+                    "text-card-foreground",
+                    category.color && "text-white",
+                  )}
+                >
+                  {category.name}
+                </CardTitle>
+                {category.isFinalJeopardy && (
+                  <Badge
+                    variant="secondary"
+                    className="border-yellow-500/30 bg-yellow-500/20 whitespace-nowrap text-yellow-100"
+                  >
+                    Final Jeopardy
+                  </Badge>
                 )}
-              >
-                {category.name}
-              </CardTitle>
+              </div>
             </CardHeader>
             <CardContent className="space-y-3 pt-4">
               {category.description && (
@@ -295,7 +349,7 @@ export function AdminCategoriesClient({
             <AlertDialogAction
               onClick={(e) => {
                 e.preventDefault();
-                handleDelete();
+                void handleDelete();
               }}
               disabled={isSubmitting}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"

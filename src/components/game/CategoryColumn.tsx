@@ -25,16 +25,14 @@ export function CategoryColumn({
       {/* Category Header */}
       <div
         className={cn(
-          "rounded-lg px-2 py-3 text-center sm:px-4 sm:py-4",
+          "flex min-h-[4rem] w-full items-center justify-center rounded-xl border-4 border-secondary/50 px-2 py-3 text-center shadow-lg sm:min-h-[5rem] sm:px-3 sm:py-4",
           "bg-primary text-primary-foreground",
-          "border-2 border-secondary",
-          "shadow-md"
         )}
         style={{
           backgroundColor: category.color ?? undefined,
         }}
       >
-        <h2 className="text-xs font-bold uppercase tracking-wider text-white sm:text-sm md:text-base lg:text-lg">
+        <h2 className="text-base font-black uppercase tracking-widest text-white drop-shadow-md sm:text-lg md:text-xl lg:text-2xl">
           {category.name}
         </h2>
       </div>

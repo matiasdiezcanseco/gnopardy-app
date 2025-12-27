@@ -81,7 +81,7 @@ export function GamePageClient({
     <div className="bg-background text-foreground min-h-screen transition-colors duration-300">
       {/* Header */}
       <header className="bg-card/50 sticky top-0 z-50 border-b backdrop-blur">
-        <div className="container mx-auto flex items-center justify-between px-6 py-4">
+        <div className="flex w-full items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
           <Link
             href="/"
             className="text-primary hover:text-primary/80 text-xl font-bold transition-colors"
@@ -102,7 +102,7 @@ export function GamePageClient({
         </div>
       </header>
 
-      <main className="container mx-auto px-6 py-8">
+      <main className="w-full px-4 py-8 sm:px-6 lg:px-8">
         <div className="grid gap-8 lg:grid-cols-[1fr_320px]">
           {/* Main Game Area */}
           <div className="space-y-8">

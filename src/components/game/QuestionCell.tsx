@@ -28,24 +28,24 @@ export function QuestionCell({
     <Button
       variant="default"
       className={cn(
-        "aspect-square w-full text-2xl font-bold sm:text-3xl md:text-4xl",
-        "bg-primary text-primary-foreground shadow-md",
-        "hover:bg-primary/90 hover:scale-[1.02] hover:shadow-xl",
+        "aspect-[16/10] h-auto w-full p-2 sm:p-4",
+        "flex flex-col items-center justify-center",
+        "text-2xl font-black tracking-tighter sm:text-3xl md:text-4xl lg:text-5xl",
+        "bg-primary text-primary-foreground shadow-lg",
+        "hover:bg-primary/90 hover:z-10 hover:scale-[1.02] hover:shadow-xl",
         "active:scale-[0.98]",
-        "border-2 border-secondary", // Silver border
+        "border-secondary/50 border-4", // Thicker border
         "transition-all duration-200",
-        "focus:outline-none focus:ring-4 focus:ring-ring/50 focus:ring-offset-2",
+        "rounded-xl",
+        "focus:ring-ring/50 focus:ring-4 focus:ring-offset-2 focus:outline-none",
         isAnswered && [
-          "opacity-40 cursor-not-allowed",
+          "cursor-not-allowed opacity-40",
           "bg-muted text-muted-foreground",
           "border-muted-foreground/20",
           "hover:bg-muted hover:scale-100 hover:shadow-none",
         ],
         isDisabled &&
-          !isAnswered && [
-            "opacity-60 cursor-not-allowed",
-            "hover:scale-100",
-          ]
+          !isAnswered && ["cursor-not-allowed opacity-60", "hover:scale-100"],
       )}
       disabled={isAnswered || isDisabled}
       onClick={handleClick}
@@ -58,4 +58,3 @@ export function QuestionCell({
     </Button>
   );
 }
-

@@ -35,41 +35,35 @@ export function HomePageClient({ activeGames }: HomePageClientProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-900 via-blue-950 to-slate-900">
-      {/* Decorative Background */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 h-80 w-80 rounded-full bg-blue-500/10 blur-3xl" />
-        <div className="absolute -bottom-40 -left-40 h-80 w-80 rounded-full bg-amber-500/10 blur-3xl" />
-      </div>
-
+    <div className="min-h-screen bg-background text-foreground transition-colors duration-300">
       <div className="relative">
         {/* Header */}
-        <header className="border-b border-white/10 bg-black/20 backdrop-blur">
-          <div className="container mx-auto flex items-center justify-between px-4 py-4">
-            <h1 className="text-xl font-bold text-white">Jeopardy!</h1>
-            <nav className="flex items-center gap-2 sm:gap-4">
+        <header className="border-b bg-card/50 backdrop-blur sticky top-0 z-50">
+          <div className="container mx-auto flex items-center justify-between px-6 py-4">
+            <h1 className="text-xl font-bold tracking-tight text-primary">Jeopardy!</h1>
+            <nav className="flex items-center gap-4 sm:gap-6">
               <ThemeSwitcher />
               <Link
                 href="/leaderboard"
-                className="text-sm text-muted-foreground hover:text-white transition-colors"
+                className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
               >
                 Leaderboard
               </Link>
               <Link
                 href="/history"
-                className="text-sm text-muted-foreground hover:text-white transition-colors"
+                className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
               >
                 History
               </Link>
               <Link
                 href="/statistics"
-                className="text-sm text-muted-foreground hover:text-white transition-colors"
+                className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
               >
                 Stats
               </Link>
               <Link
                 href="/admin/categories"
-                className="text-sm text-muted-foreground hover:text-white transition-colors"
+                className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
               >
                 Admin
               </Link>
@@ -78,17 +72,15 @@ export function HomePageClient({ activeGames }: HomePageClientProps) {
         </header>
 
         {/* Hero Section */}
-        <main className="container mx-auto px-4 py-16">
+        <main className="container mx-auto px-6 py-24">
           <div className="mx-auto max-w-3xl text-center">
             {/* Logo/Title */}
-            <div className="mb-8">
-              <h1 className="text-6xl font-bold tracking-tight text-white sm:text-7xl md:text-8xl">
-                <span className="bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-400 bg-clip-text text-transparent">
-                  JEOPARDY!
-                </span>
+            <div className="mb-12">
+              <h1 className="text-6xl font-bold tracking-tight text-primary sm:text-7xl md:text-8xl drop-shadow-sm">
+                JEOPARDY!
               </h1>
-              <p className="mt-4 text-xl text-white/60">
-                The ultimate trivia game experience
+              <p className="mt-6 text-xl text-muted-foreground max-w-2xl mx-auto">
+                The ultimate trivia game experience. Challenge your friends and test your knowledge.
               </p>
             </div>
 
@@ -98,15 +90,7 @@ export function HomePageClient({ activeGames }: HomePageClientProps) {
                 onClick={handleNewGame}
                 disabled={isPending}
                 size="lg"
-                className={cn(
-                  "w-full sm:w-auto",
-                  "bg-gradient-to-r from-amber-500 to-yellow-500",
-                  "text-black font-bold",
-                  "hover:from-amber-400 hover:to-yellow-400",
-                  "shadow-lg shadow-amber-500/30",
-                  "transition-all duration-200",
-                  "hover:scale-105 hover:shadow-xl hover:shadow-amber-500/40"
-                )}
+                className="w-full sm:w-auto px-8 py-6 text-lg shadow-lg hover:shadow-xl transition-all"
               >
                 {isPending ? (
                   <>
@@ -125,45 +109,31 @@ export function HomePageClient({ activeGames }: HomePageClientProps) {
 
             {/* Active Games */}
             {activeGames.length > 0 && (
-              <div className="mt-16">
-                <h2 className="mb-6 text-xl font-semibold text-white/80">
+              <div className="mt-20">
+                <h2 className="mb-8 text-2xl font-semibold text-foreground">
                   Continue Playing
                 </h2>
-                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                   {activeGames.map((game) => (
                     <Link
                       key={game.id}
                       href={`/game/${game.id}`}
                       className={cn(
-                        "group rounded-xl border border-white/10 bg-white/5 p-6",
-                        "backdrop-blur transition-all duration-200",
-                        "hover:border-amber-500/50 hover:bg-white/10",
-                        "hover:shadow-lg hover:shadow-amber-500/10"
+                        "group rounded-xl border bg-card p-6",
+                        "transition-all duration-200",
+                        "hover:border-primary/50 hover:shadow-md",
+                        "text-left"
                       )}
                     >
-                      <div className="flex items-center justify-between">
-                        <div className="text-left">
-                          <h3 className="font-semibold text-white group-hover:text-amber-400 transition-colors">
-                            {game.name ?? `Game #${game.id}`}
-                          </h3>
-                          <p className="text-sm text-muted-foreground">
-                            Started{" "}
-                            {new Date(game.createdAt).toLocaleDateString()}
-                          </p>
-                        </div>
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          viewBox="0 0 24 24"
-                          fill="currentColor"
-                          className="h-5 w-5 text-muted-foreground group-hover:text-amber-400 transition-colors"
-                        >
-                          <path
-                            fillRule="evenodd"
-                            d="M16.28 11.47a.75.75 0 010 1.06l-7.5 7.5a.75.75 0 01-1.06-1.06L14.69 12 7.72 5.03a.75.75 0 011.06-1.06l7.5 7.5z"
-                            clipRule="evenodd"
-                          />
-                        </svg>
+                      <div className="flex items-center justify-between mb-2">
+                        <h3 className="font-bold text-lg text-foreground group-hover:text-primary transition-colors">
+                          {game.name ?? `Game #${game.id}`}
+                        </h3>
+                        <div className="h-2 w-2 rounded-full bg-green-500" />
                       </div>
+                      <p className="text-sm text-muted-foreground">
+                        Started {new Date(game.createdAt).toLocaleDateString()}
+                      </p>
                     </Link>
                   ))}
                 </div>
@@ -174,36 +144,36 @@ export function HomePageClient({ activeGames }: HomePageClientProps) {
             <div className="mt-24 grid gap-8 sm:grid-cols-3">
               <Link 
                 href="/leaderboard"
-                className="group text-center p-6 rounded-xl border border-white/10 hover:border-blue-500/50 hover:bg-white/5 transition-all"
+                className="group text-center p-8 rounded-xl border bg-card hover:border-primary/50 hover:shadow-lg transition-all"
               >
-                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-500/20 group-hover:bg-blue-500/30 transition-colors">
+                <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary group-hover:scale-110 transition-transform">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 24 24"
                     fill="currentColor"
-                    className="h-8 w-8 text-blue-400"
+                    className="h-8 w-8"
                   >
                     <path d="M4.5 6.375a4.125 4.125 0 118.25 0 4.125 4.125 0 01-8.25 0zM14.25 8.625a3.375 3.375 0 116.75 0 3.375 3.375 0 01-6.75 0zM1.5 19.125a7.125 7.125 0 0114.25 0v.003l-.001.119a.75.75 0 01-.363.63 13.067 13.067 0 01-6.761 1.873c-2.472 0-4.786-.684-6.76-1.873a.75.75 0 01-.364-.63l-.001-.122zM17.25 19.128l-.001.144a2.25 2.25 0 01-.233.96 10.088 10.088 0 005.06-1.01.75.75 0 00.42-.643 4.875 4.875 0 00-6.957-4.611 8.586 8.586 0 011.71 5.157v.003z" />
                   </svg>
                 </div>
-                <h3 className="text-lg font-semibold text-white group-hover:text-blue-400 transition-colors">
+                <h3 className="text-xl font-bold mb-2 group-hover:text-primary transition-colors">
                   Leaderboard
                 </h3>
-                <p className="mt-2 text-sm text-muted-foreground">
+                <p className="text-muted-foreground">
                   View top players and rankings
                 </p>
               </Link>
 
               <Link
                 href="/history"
-                className="group text-center p-6 rounded-xl border border-white/10 hover:border-amber-500/50 hover:bg-white/5 transition-all"
+                className="group text-center p-8 rounded-xl border bg-card hover:border-primary/50 hover:shadow-lg transition-all"
               >
-                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-amber-500/20 group-hover:bg-amber-500/30 transition-colors">
+                <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary group-hover:scale-110 transition-transform">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 24 24"
                     fill="currentColor"
-                    className="h-8 w-8 text-amber-400"
+                    className="h-8 w-8"
                   >
                     <path
                       fillRule="evenodd"
@@ -212,55 +182,55 @@ export function HomePageClient({ activeGames }: HomePageClientProps) {
                     />
                   </svg>
                 </div>
-                <h3 className="text-lg font-semibold text-white group-hover:text-amber-400 transition-colors">
+                <h3 className="text-xl font-bold mb-2 group-hover:text-primary transition-colors">
                   Game History
                 </h3>
-                <p className="mt-2 text-sm text-muted-foreground">
+                <p className="text-muted-foreground">
                   Review past games and scores
                 </p>
               </Link>
 
               <Link
                 href="/statistics"
-                className="group text-center p-6 rounded-xl border border-white/10 hover:border-green-500/50 hover:bg-white/5 transition-all"
+                className="group text-center p-8 rounded-xl border bg-card hover:border-primary/50 hover:shadow-lg transition-all"
               >
-                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-green-500/20 group-hover:bg-green-500/30 transition-colors">
+                <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary group-hover:scale-110 transition-transform">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 24 24"
                     fill="currentColor"
-                    className="h-8 w-8 text-green-400"
+                    className="h-8 w-8"
                   >
                     <path d="M18.375 2.25c-1.035 0-1.875.84-1.875 1.875v15.75c0 1.035.84 1.875 1.875 1.875h.75c1.035 0 1.875-.84 1.875-1.875V4.125c0-1.036-.84-1.875-1.875-1.875h-.75zM9.75 8.625c0-1.036.84-1.875 1.875-1.875h.75c1.036 0 1.875.84 1.875 1.875v11.25c0 1.035-.84 1.875-1.875 1.875h-.75a1.875 1.875 0 01-1.875-1.875V8.625zM3 13.125c0-1.036.84-1.875 1.875-1.875h.75c1.036 0 1.875.84 1.875 1.875v6.75c0 1.035-.84 1.875-1.875 1.875h-.75A1.875 1.875 0 013 19.875v-6.75z" />
                   </svg>
                 </div>
-                <h3 className="text-lg font-semibold text-white group-hover:text-green-400 transition-colors">
+                <h3 className="text-xl font-bold mb-2 group-hover:text-primary transition-colors">
                   Statistics
                 </h3>
-                <p className="mt-2 text-sm text-muted-foreground">
+                <p className="text-muted-foreground">
                   Detailed player statistics
                 </p>
               </Link>
             </div>
 
             {/* Admin Features */}
-            <div className="mt-12 p-6 rounded-xl border border-white/10 bg-white/5">
-              <h3 className="text-lg font-semibold text-white mb-4">
+            <div className="mt-16 p-8 rounded-xl border bg-muted/30">
+              <h3 className="text-lg font-semibold text-foreground mb-6">
                 Admin Tools
               </h3>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap justify-center gap-3">
                 <Link href="/admin/categories">
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline">
                     📁 Manage Categories
                   </Button>
                 </Link>
                 <Link href="/admin/questions">
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline">
                     ❓ Manage Questions
                   </Button>
                 </Link>
                 <Link href="/admin/data">
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline">
                     💾 Import/Export Data
                   </Button>
                 </Link>
@@ -270,8 +240,8 @@ export function HomePageClient({ activeGames }: HomePageClientProps) {
         </main>
 
         {/* Footer */}
-        <footer className="border-t border-white/10 bg-black/20 backdrop-blur mt-auto">
-          <div className="container mx-auto px-4 py-6 text-center text-sm text-muted-foreground">
+        <footer className="border-t bg-card/50 backdrop-blur mt-auto">
+          <div className="container mx-auto px-6 py-8 text-center text-sm text-muted-foreground">
             <p>
               Built with Next.js, Tailwind CSS, and Drizzle ORM
             </p>
@@ -281,4 +251,3 @@ export function HomePageClient({ activeGames }: HomePageClientProps) {
     </div>
   );
 }
-

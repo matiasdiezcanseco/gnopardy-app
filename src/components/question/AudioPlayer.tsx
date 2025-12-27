@@ -23,6 +23,11 @@ export function AudioPlayer({
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Debug: Log the source URL
+  useEffect(() => {
+    console.log("AudioPlayer: Loading audio from:", src);
+  }, [src]);
+
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
@@ -30,6 +35,22 @@ export function AudioPlayer({
     const handleLoadedMetadata = () => {
       setDuration(audio.duration);
       setIsLoading(false);
+    };
+
+    const handleLoadedData = () => {
+      // Fallback in case loadedmetadata doesn't fire
+      if (isLoading && audio.duration) {
+        setDuration(audio.duration);
+        setIsLoading(false);
+      }
+    };
+
+    const handleCanPlay = () => {
+      // Another fallback to ensure loading state is cleared
+      if (isLoading) {
+        setDuration(audio.duration || 0);
+        setIsLoading(false);
+      }
     };
 
     const handleTimeUpdate = () => {
@@ -41,23 +62,34 @@ export function AudioPlayer({
       setCurrentTime(0);
     };
 
-    const handleError = () => {
+    const handleError = (e: Event) => {
+      console.error("Audio loading error:", e, "Source:", src);
       setError("Failed to load audio");
       setIsLoading(false);
     };
 
+    // If audio is already ready, update state immediately
+    if (audio.readyState >= 1) {
+      setDuration(audio.duration || 0);
+      setIsLoading(false);
+    }
+
     audio.addEventListener("loadedmetadata", handleLoadedMetadata);
+    audio.addEventListener("loadeddata", handleLoadedData);
+    audio.addEventListener("canplay", handleCanPlay);
     audio.addEventListener("timeupdate", handleTimeUpdate);
     audio.addEventListener("ended", handleEnded);
     audio.addEventListener("error", handleError);
 
     return () => {
       audio.removeEventListener("loadedmetadata", handleLoadedMetadata);
+      audio.removeEventListener("loadeddata", handleLoadedData);
+      audio.removeEventListener("canplay", handleCanPlay);
       audio.removeEventListener("timeupdate", handleTimeUpdate);
       audio.removeEventListener("ended", handleEnded);
       audio.removeEventListener("error", handleError);
     };
-  }, []);
+  }, [src, isLoading]);
 
   const togglePlay = () => {
     const audio = audioRef.current;
@@ -110,7 +142,13 @@ export function AudioPlayer({
         className
       )}
     >
-      <audio ref={audioRef} src={src} autoPlay={autoPlay} preload="metadata" />
+      <audio 
+        ref={audioRef} 
+        src={src} 
+        autoPlay={autoPlay} 
+        preload="auto"
+        crossOrigin="anonymous"
+      />
 
       {isLoading ? (
         <div className="flex items-center justify-center py-4">

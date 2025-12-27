@@ -43,13 +43,13 @@ export function PlayerSelector({
               "border-2",
               isSelected
                 ? [
-                    "bg-amber-500 text-black border-amber-400",
-                    "shadow-lg shadow-amber-500/30",
+                    "bg-primary/10 text-primary border-primary",
+                    "shadow-lg shadow-primary/20",
                     "scale-105",
                   ]
                 : [
                     "bg-card text-card-foreground border-border",
-                    "hover:bg-accent hover:border-accent",
+                    "hover:bg-accent hover:border-accent hover:text-accent-foreground",
                     "hover:scale-[1.02]",
                   ]
             )}
@@ -60,8 +60,8 @@ export function PlayerSelector({
                 "flex h-10 w-10 items-center justify-center rounded-full",
                 "text-sm font-bold",
                 isSelected
-                  ? "bg-amber-600 text-white"
-                  : "bg-primary text-primary-foreground"
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-secondary text-secondary-foreground"
               )}
             >
               {initials}
@@ -73,7 +73,7 @@ export function PlayerSelector({
               <div
                 className={cn(
                   "text-sm",
-                  isSelected ? "text-amber-900" : "text-muted-foreground"
+                  isSelected ? "text-primary" : "text-muted-foreground"
                 )}
               >
                 ${player.score.toLocaleString()}

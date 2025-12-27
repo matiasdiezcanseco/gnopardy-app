@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Button } from "~/components/ui/button";
+import { cn } from "~/lib/utils";
 import { Input } from "~/components/ui/input";
 import { Textarea } from "~/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
@@ -81,9 +82,7 @@ export function AdminCategoriesClient({
 
         if (result.success) {
           setCategories((prev) =>
-            prev.map((cat) =>
-              cat.id === editingId ? result.data : cat
-            )
+            prev.map((cat) => (cat.id === editingId ? result.data : cat)),
           );
           resetForm();
         } else {
@@ -143,8 +142,8 @@ export function AdminCategoriesClient({
               {editingId !== null
                 ? "Edit Category"
                 : isCreating
-                ? "Create New Category"
-                : "Categories"}
+                  ? "Create New Category"
+                  : "Categories"}
             </CardTitle>
             {!isCreating && editingId === null && (
               <Button onClick={startCreate}>+ Create Category</Button>
@@ -160,7 +159,7 @@ export function AdminCategoriesClient({
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               {error && (
-                <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">
+                <div className="bg-destructive/10 text-destructive rounded-md p-3 text-sm">
                   {error}
                 </div>
               )}
@@ -195,7 +194,7 @@ export function AdminCategoriesClient({
                     type="color"
                     value={color}
                     onChange={(e) => setColor(e.target.value)}
-                    className="w-20 h-10"
+                    className="h-10 w-20"
                     disabled={isSubmitting}
                   />
                   <Input
@@ -213,8 +212,8 @@ export function AdminCategoriesClient({
                 {isSubmitting
                   ? "Saving..."
                   : editingId !== null
-                  ? "Update Category"
-                  : "Create Category"}
+                    ? "Update Category"
+                    : "Create Category"}
               </Button>
             </form>
           </CardContent>
@@ -224,18 +223,25 @@ export function AdminCategoriesClient({
       {/* Categories List */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {categories.map((category) => (
-          <Card key={category.id}>
+          <Card key={category.id} className="pt-0">
             <CardHeader
               className="pb-3"
               style={{
                 backgroundColor: category.color ?? undefined,
               }}
             >
-              <CardTitle className="text-white">{category.name}</CardTitle>
+              <CardTitle
+                className={cn(
+                  "text-card-foreground",
+                  category.color && "text-white",
+                )}
+              >
+                {category.name}
+              </CardTitle>
             </CardHeader>
-            <CardContent className="pt-4 space-y-3">
+            <CardContent className="space-y-3 pt-4">
               {category.description && (
-                <p className="text-sm text-muted-foreground">
+                <p className="text-muted-foreground text-sm">
                   {category.description}
                 </p>
               )}
@@ -263,7 +269,7 @@ export function AdminCategoriesClient({
       </div>
 
       {categories.length === 0 && !isCreating && (
-        <div className="text-center py-12">
+        <div className="py-12 text-center">
           <p className="text-muted-foreground mb-4">No categories yet</p>
           <Button onClick={startCreate}>Create Your First Category</Button>
         </div>
@@ -283,7 +289,9 @@ export function AdminCategoriesClient({
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isSubmitting}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel disabled={isSubmitting}>
+              Cancel
+            </AlertDialogCancel>
             <AlertDialogAction
               onClick={(e) => {
                 e.preventDefault();
@@ -300,4 +308,3 @@ export function AdminCategoriesClient({
     </div>
   );
 }
-

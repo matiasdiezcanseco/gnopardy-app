@@ -45,11 +45,11 @@ export function GameBoard({
       {/* Player Selection Warning */}
       {!isPlayerSelected && (
         <div 
-          className="mb-4 rounded-lg bg-amber-500/20 border border-amber-500/50 px-4 py-3 text-center text-amber-200"
+          className="mb-4 rounded-lg bg-primary/10 border border-primary/20 px-4 py-3 text-center text-primary font-medium"
           role="alert"
           aria-live="polite"
         >
-          <p className="text-sm font-medium">
+          <p className="text-sm">
             Please select a player before choosing a question
           </p>
         </div>

@@ -338,3 +338,47 @@ export async function validateMultipleChoiceAnswer(
   }
 }
 
+// ============================================================================
+// Manual Answer Override
+// ============================================================================
+/**
+ * Manually override the answer validation (for host to force correct/incorrect)
+ * This allows the host to manually award or deny points when the answer is close but not exact
+ */
+export async function manualAnswerOverride(
+  questionId: number,
+  forceCorrect: boolean
+): Promise<ActionResult<ValidationResult>> {
+  try {
+    // Get the question for points
+    const [question] = await db
+      .select()
+      .from(questions)
+      .where(eq(questions.id, questionId));
+
+    if (!question) {
+      return { success: false, error: "Question not found" };
+    }
+
+    // Get correct answer for display
+    const correctAnswers = await db
+      .select()
+      .from(answers)
+      .where(
+        and(eq(answers.questionId, questionId), eq(answers.isCorrect, true))
+      );
+
+    return {
+      success: true,
+      data: {
+        isCorrect: forceCorrect,
+        correctAnswer: forceCorrect ? undefined : correctAnswers[0]?.text,
+        points: question.points,
+      },
+    };
+  } catch (error) {
+    console.error("Error processing manual override:", error);
+    return { success: false, error: "Failed to process manual override" };
+  }
+}
+

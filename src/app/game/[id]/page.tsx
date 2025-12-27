@@ -1,8 +1,7 @@
 import { notFound } from "next/navigation";
 import { GamePageClient } from "./client";
-import { getGameById } from "~/server/actions/game";
+import { getGameById, getGameQuestions } from "~/server/actions/game";
 import { getCategories } from "~/server/actions/category";
-import { getQuestions } from "~/server/actions/question";
 
 interface GamePageProps {
   params: Promise<{ id: string }>;
@@ -20,7 +19,7 @@ export default async function GamePage({ params }: GamePageProps) {
   const [gameResult, categoriesResult, questionsResult] = await Promise.all([
     getGameById(gameId),
     getCategories(),
-    getQuestions(),
+    getGameQuestions(gameId), // Use game-specific questions with per-game answered status
   ]);
 
   if (!gameResult.success) {

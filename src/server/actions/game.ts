@@ -5,6 +5,8 @@ import {
   games,
   players,
   questions,
+  categories,
+  gameQuestions,
   type Game,
   type NewGame,
   type Player,
@@ -48,6 +50,19 @@ export async function createGame(
 
     if (!game) {
       return { success: false, error: "Failed to create game" };
+    }
+
+    // Initialize all questions for this game in the game_questions table
+    const allQuestions = await db.select({ id: questions.id }).from(questions);
+    
+    if (allQuestions.length > 0) {
+      await db.insert(gameQuestions).values(
+        allQuestions.map((q) => ({
+          gameId: game.id,
+          questionId: q.id,
+          isAnswered: false,
+        }))
+      );
     }
 
     return { success: true, data: game };
@@ -228,12 +243,15 @@ export async function checkGameCompletion(
   id: number
 ): Promise<ActionResult<{ isComplete: boolean; winner?: Player | null }>> {
   try {
-    // Get all questions
-    const allQuestions = await db.select().from(questions);
+    // Get all questions for this specific game
+    const gameQuestionsData = await db
+      .select()
+      .from(gameQuestions)
+      .where(eq(gameQuestions.gameId, id));
 
-    // Check if all questions are answered
-    const unansweredCount = allQuestions.filter((q) => !q.isAnswered).length;
-    const isComplete = unansweredCount === 0;
+    // Check if all questions are answered for this game
+    const unansweredCount = gameQuestionsData.filter((gq) => !gq.isAnswered).length;
+    const isComplete = gameQuestionsData.length > 0 && unansweredCount === 0;
 
     if (!isComplete) {
       return { success: true, data: { isComplete: false } };
@@ -285,11 +303,12 @@ export async function resetGame(
       return { success: false, error: "Game not found" };
     }
 
-    // Reset all questions to unanswered
+    // Reset all questions for this game to unanswered
     const resetQuestions = await db
-      .update(questions)
-      .set({ isAnswered: false })
-      .returning({ id: questions.id });
+      .update(gameQuestions)
+      .set({ isAnswered: false, answeredAt: null })
+      .where(eq(gameQuestions.gameId, id))
+      .returning({ id: gameQuestions.id });
 
     // Reset all player scores for this game
     const resetPlayers = await db
@@ -314,6 +333,147 @@ export async function resetGame(
   } catch (error) {
     console.error("Error resetting game:", error);
     return { success: false, error: "Failed to reset game" };
+  }
+}
+
+// ============================================================================
+// Get Game Questions (questions with per-game answered status)
+// ============================================================================
+export async function getGameQuestions(gameId: number): Promise<
+  ActionResult<
+    Array<{
+      id: number;
+      categoryId: number;
+      text: string;
+      points: number;
+      type: string;
+      mediaUrl: string | null;
+      isAnswered: boolean;
+      createdAt: Date;
+      updatedAt: Date | null;
+      category: { id: number; name: string } | null;
+    }>
+  >
+> {
+  try {
+    // Get all questions with their per-game answered status and category info
+    const result = await db
+      .select({
+        id: questions.id,
+        categoryId: questions.categoryId,
+        text: questions.text,
+        points: questions.points,
+        type: questions.type,
+        mediaUrl: questions.mediaUrl,
+        isAnswered: gameQuestions.isAnswered,
+        createdAt: questions.createdAt,
+        updatedAt: questions.updatedAt,
+        categoryName: categories.name,
+        categoryIdFromCategory: categories.id,
+      })
+      .from(questions)
+      .leftJoin(
+        gameQuestions,
+        and(
+          eq(gameQuestions.questionId, questions.id),
+          eq(gameQuestions.gameId, gameId)
+        )
+      )
+      .leftJoin(categories, eq(questions.categoryId, categories.id));
+
+    // Map results to include category object
+    const questionsWithStatus = result.map((q) => ({
+      id: q.id,
+      categoryId: q.categoryId,
+      text: q.text,
+      points: q.points,
+      type: q.type,
+      mediaUrl: q.mediaUrl,
+      isAnswered: q.isAnswered ?? false,
+      createdAt: q.createdAt,
+      updatedAt: q.updatedAt,
+      category:
+        q.categoryIdFromCategory && q.categoryName
+          ? { id: q.categoryIdFromCategory, name: q.categoryName }
+          : null,
+    }));
+
+    return { success: true, data: questionsWithStatus };
+  } catch (error) {
+    console.error("Error fetching game questions:", error);
+    return { success: false, error: "Failed to fetch game questions" };
+  }
+}
+
+// ============================================================================
+// Check if Question is Answered in Game
+// ============================================================================
+export async function isQuestionAnsweredInGame(
+  gameId: number,
+  questionId: number
+): Promise<ActionResult<boolean>> {
+  try {
+    const [gameQuestion] = await db
+      .select()
+      .from(gameQuestions)
+      .where(
+        and(
+          eq(gameQuestions.gameId, gameId),
+          eq(gameQuestions.questionId, questionId)
+        )
+      );
+
+    return { success: true, data: gameQuestion?.isAnswered ?? false };
+  } catch (error) {
+    console.error("Error checking question status:", error);
+    return { success: false, error: "Failed to check question status" };
+  }
+}
+
+// ============================================================================
+// Mark Question as Answered in Game
+// ============================================================================
+export async function markQuestionAsAnsweredInGame(
+  gameId: number,
+  questionId: number
+): Promise<ActionResult<{ success: boolean }>> {
+  try {
+    // First, check if the game question record exists
+    const [existingGameQuestion] = await db
+      .select()
+      .from(gameQuestions)
+      .where(
+        and(
+          eq(gameQuestions.gameId, gameId),
+          eq(gameQuestions.questionId, questionId)
+        )
+      );
+
+    if (existingGameQuestion) {
+      // Update existing record
+      await db
+        .update(gameQuestions)
+        .set({ isAnswered: true, answeredAt: new Date() })
+        .where(
+          and(
+            eq(gameQuestions.gameId, gameId),
+            eq(gameQuestions.questionId, questionId)
+          )
+        );
+    } else {
+      // Insert new record (for questions created after the game)
+      await db.insert(gameQuestions).values({
+        gameId,
+        questionId,
+        isAnswered: true,
+        answeredAt: new Date(),
+      });
+    }
+
+    return { success: true, data: { success: true } };
+  } catch (error) {
+    console.error("Error marking question as answered:", error);
+    return { success: false, error: "Failed to mark question as answered" };
   }
 }
 

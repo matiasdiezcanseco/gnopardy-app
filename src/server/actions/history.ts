@@ -15,7 +15,7 @@ import {
   type PlayerStatistics,
   type NewPlayerStatistics,
 } from "~/server/db/schema";
-import { eq, desc, sql } from "drizzle-orm";
+import { eq, desc, sql, and } from "drizzle-orm";
 
 // ============================================================================
 // Types
@@ -197,6 +197,29 @@ export async function getAnswerHistoryByPlayer(
   } catch (error) {
     console.error("Error fetching answer history:", error);
     return { success: false, error: "Failed to fetch answer history" };
+  }
+}
+
+/**
+ * Checks if a player has already attempted a specific question in a game
+ */
+export async function hasPlayerAttemptedQuestion(
+  gameId: number,
+  playerId: number,
+  questionId: number
+): Promise<ActionResult<boolean>> {
+  try {
+    const [attempt] = await db
+      .select()
+      .from(answerHistory)
+      .where(
+        sql`${answerHistory.gameId} = ${gameId} AND ${answerHistory.playerId} = ${playerId} AND ${answerHistory.questionId} = ${questionId}`
+      );
+
+    return { success: true, data: !!attempt };
+  } catch (error) {
+    console.error("Error checking player attempt:", error);
+    return { success: false, error: "Failed to check player attempt" };
   }
 }
 

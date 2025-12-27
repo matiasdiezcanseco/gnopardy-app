@@ -13,10 +13,11 @@ export default async function AdminQuestionsPage() {
 
   if (!questionsResult.success || !categoriesResult.success) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-slate-900 to-blue-950 p-8">
-        <div className="container mx-auto">
-          <div className="bg-destructive/10 text-destructive rounded-lg p-4">
-            Failed to load data
+      <div className="min-h-screen bg-background p-8 flex items-center justify-center">
+        <div className="container mx-auto max-w-md">
+          <div className="bg-destructive/10 border border-destructive/20 text-destructive rounded-lg p-6 text-center">
+            <h3 className="font-semibold mb-2">Error Loading Data</h3>
+            <p>Failed to load questions or categories.</p>
           </div>
         </div>
       </div>
@@ -35,19 +36,19 @@ export default async function AdminQuestionsPage() {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-900 to-blue-950">
+    <div className="min-h-screen bg-background text-foreground transition-colors duration-300">
       {/* Header */}
-      <header className="border-b border-white/10 bg-black/20 backdrop-blur">
-        <div className="container mx-auto flex items-center justify-between px-4 py-4">
+      <header className="border-b bg-card/50 backdrop-blur sticky top-0 z-50">
+        <div className="container mx-auto flex items-center justify-between px-6 py-4">
           <div className="flex items-center gap-4">
             <Link
               href="/"
-              className="text-xl font-bold text-white transition-colors hover:text-amber-400"
+              className="text-xl font-bold text-primary hover:text-primary/80 transition-colors"
             >
               Jeopardy!
             </Link>
             <span className="text-muted-foreground text-sm">/</span>
-            <span className="text-lg font-semibold text-white">
+            <span className="text-lg font-semibold text-foreground">
               Manage Questions
             </span>
           </div>
@@ -61,7 +62,7 @@ export default async function AdminQuestionsPage() {
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-6 py-8">
         <AdminQuestionsClient
           initialQuestions={questionsWithAnswers}
           categories={categoriesResult.data}

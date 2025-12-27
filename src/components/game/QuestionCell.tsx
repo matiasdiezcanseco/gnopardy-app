@@ -29,19 +29,17 @@ export function QuestionCell({
       variant="default"
       className={cn(
         "aspect-square w-full text-2xl font-bold sm:text-3xl md:text-4xl",
-        "bg-gradient-to-b from-blue-600 to-blue-800",
-        "hover:from-blue-500 hover:to-blue-700",
-        "text-amber-400 shadow-lg",
-        "transition-all duration-200",
-        "hover:scale-[1.02] hover:shadow-xl",
+        "bg-primary text-primary-foreground shadow-md",
+        "hover:bg-primary/90 hover:scale-[1.02] hover:shadow-xl",
         "active:scale-[0.98]",
-        "border-2 border-blue-400/30",
-        "focus:outline-none focus:ring-4 focus:ring-blue-400/50 focus:ring-offset-2",
+        "border-2 border-secondary", // Silver border
+        "transition-all duration-200",
+        "focus:outline-none focus:ring-4 focus:ring-ring/50 focus:ring-offset-2",
         isAnswered && [
-          "opacity-30 cursor-not-allowed",
-          "bg-gradient-to-b from-gray-600 to-gray-800",
-          "text-gray-500",
-          "hover:scale-100 hover:shadow-lg",
+          "opacity-40 cursor-not-allowed",
+          "bg-muted text-muted-foreground",
+          "border-muted-foreground/20",
+          "hover:bg-muted hover:scale-100 hover:shadow-none",
         ],
         isDisabled &&
           !isAnswered && [

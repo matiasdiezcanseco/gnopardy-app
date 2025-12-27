@@ -41,7 +41,7 @@ export function QuestionView({
             {category.name}
           </p>
         )}
-        <p className="text-2xl font-bold text-amber-500 sm:text-3xl md:text-4xl">
+        <p className="text-2xl font-bold text-primary sm:text-3xl md:text-4xl">
           ${question.points}
         </p>
       </div>
@@ -49,11 +49,11 @@ export function QuestionView({
       {/* Question Text */}
       <div
         className={cn(
-          "rounded-lg sm:rounded-xl bg-gradient-to-b from-blue-700 to-blue-900 p-4 sm:p-6 md:p-8",
-          "border-2 border-blue-400/30 shadow-xl"
+          "rounded-lg sm:rounded-xl bg-primary p-4 sm:p-6 md:p-8",
+          "border-2 border-secondary shadow-xl"
         )}
       >
-        <p className="text-lg font-medium text-white text-center sm:text-xl md:text-2xl leading-relaxed break-words">
+        <p className="text-lg font-medium text-primary-foreground text-center sm:text-xl md:text-2xl leading-relaxed break-words">
           {question.text}
         </p>
       </div>

@@ -50,10 +50,10 @@ export function PlayerList({
               onSelectPlayer && "cursor-pointer",
               isSelected
                 ? [
-                    "bg-amber-500/20 border-amber-500",
-                    "shadow-lg shadow-amber-500/10",
+                    "bg-primary/10 border-primary",
+                    "shadow-lg shadow-primary/10",
                   ]
-                : ["bg-card border-border", onSelectPlayer && "hover:bg-accent"]
+                : ["bg-card border-border", onSelectPlayer && "hover:bg-accent hover:text-accent-foreground"]
             )}
           >
             {/* Rank */}
@@ -61,9 +61,9 @@ export function PlayerList({
               <div
                 className={cn(
                   "flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold",
-                  rank === 1 && "bg-amber-500 text-black",
-                  rank === 2 && "bg-gray-400 text-black",
-                  rank === 3 && "bg-amber-700 text-white",
+                  rank === 1 && "bg-yellow-500 text-black", // Gold
+                  rank === 2 && "bg-gray-400 text-black",   // Silver
+                  rank === 3 && "bg-orange-700 text-white", // Bronze
                   rank > 3 && "bg-muted text-muted-foreground"
                 )}
               >
@@ -77,8 +77,8 @@ export function PlayerList({
                 "flex h-10 w-10 items-center justify-center rounded-full",
                 "text-sm font-bold",
                 isSelected
-                  ? "bg-amber-500 text-black"
-                  : "bg-primary text-primary-foreground"
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-secondary text-secondary-foreground"
               )}
             >
               {initials}
@@ -89,7 +89,7 @@ export function PlayerList({
               <div
                 className={cn(
                   "font-semibold",
-                  isSelected && "text-amber-500"
+                  isSelected && "text-primary"
                 )}
               >
                 {player.name}

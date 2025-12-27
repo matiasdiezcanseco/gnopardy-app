@@ -2,7 +2,8 @@ import { notFound, redirect } from "next/navigation";
 import { QuestionPageClient } from "./client";
 import { getQuestionById } from "~/server/actions/question";
 import { getAnswersByQuestionId } from "~/server/actions/answer";
-import { getPlayerById } from "~/server/actions/player";
+import { getPlayerById, getPlayersByGameId } from "~/server/actions/player";
+import { isQuestionAnsweredInGame } from "~/server/actions/game";
 
 interface QuestionPageProps {
   params: Promise<{ id: string }>;
@@ -29,11 +30,13 @@ export default async function QuestionPage({
     redirect("/");
   }
 
-  // Fetch question data
-  const [questionResult, answersResult, playerResult] = await Promise.all([
+  // Fetch question data and all players for the game
+  const [questionResult, answersResult, playerResult, allPlayersResult, answeredResult] = await Promise.all([
     getQuestionById(questionId),
     getAnswersByQuestionId(questionId),
     getPlayerById(playerIdNum),
+    getPlayersByGameId(gameIdNum),
+    isQuestionAnsweredInGame(gameIdNum, questionId), // Check per-game answered status
   ]);
 
   if (!questionResult.success) {
@@ -48,12 +51,17 @@ export default async function QuestionPage({
     redirect(`/game/${gameIdNum}`);
   }
 
+  if (!allPlayersResult.success) {
+    throw new Error("Failed to load players");
+  }
+
   const question = questionResult.data;
   const answers = answersResult.data;
   const player = playerResult.data;
+  const allPlayers = allPlayersResult.data;
 
-  // If question is already answered, redirect back to game
-  if (question.isAnswered) {
+  // If question is already answered in this game, redirect back to game
+  if (answeredResult.success && answeredResult.data) {
     redirect(`/game/${gameIdNum}`);
   }
 
@@ -62,6 +70,7 @@ export default async function QuestionPage({
       question={question}
       answers={answers}
       player={player}
+      allPlayers={allPlayers}
       gameId={gameIdNum}
     />
   );

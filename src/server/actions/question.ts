@@ -31,10 +31,11 @@ const createQuestionSchema = z.object({
     .int()
     .refine(
       (val) => validPoints.includes(val as (typeof validPoints)[number]),
-      "Points must be 100, 200, 300, 400, or 500"
+      "Points must be 100, 200, 300, 400, or 500",
     ),
   type: questionTypeEnum.default("text"),
-  mediaUrl: z.string().url("Media URL must be a valid URL").optional().nullable(),
+  mediaUrl: z.string().optional().nullable(),
+  // isAnswered is deprecated - use game_questions table for per-game tracking
   isAnswered: z.boolean().optional(),
 });
 
@@ -55,15 +56,12 @@ type QuestionWithCategory = Question & {
 // Create Question
 // ============================================================================
 export async function createQuestion(
-  input: NewQuestion
+  input: NewQuestion,
 ): Promise<ActionResult<Question>> {
   try {
     const validated = createQuestionSchema.parse(input);
 
-    const [question] = await db
-      .insert(questions)
-      .values(validated)
-      .returning();
+    const [question] = await db.insert(questions).values(validated).returning();
 
     if (!question) {
       return { success: false, error: "Failed to create question" };
@@ -86,7 +84,7 @@ export async function createQuestion(
 // Get All Questions (with optional category filter)
 // ============================================================================
 export async function getQuestions(
-  categoryId?: number
+  categoryId?: number,
 ): Promise<ActionResult<QuestionWithCategory[]>> {
   try {
     const query = db
@@ -123,7 +121,7 @@ export async function getQuestions(
 // Get Question by ID (with category info)
 // ============================================================================
 export async function getQuestionById(
-  id: number
+  id: number,
 ): Promise<ActionResult<QuestionWithCategory>> {
   try {
     const [question] = await db
@@ -161,7 +159,7 @@ export async function getQuestionById(
 // Get Questions by Category
 // ============================================================================
 export async function getQuestionsByCategory(
-  categoryId: number
+  categoryId: number,
 ): Promise<ActionResult<Question[]>> {
   try {
     const result = await db
@@ -182,7 +180,7 @@ export async function getQuestionsByCategory(
 // ============================================================================
 export async function updateQuestion(
   id: number,
-  input: Partial<NewQuestion>
+  input: Partial<NewQuestion>,
 ): Promise<ActionResult<Question>> {
   try {
     const validated = updateQuestionSchema.parse(input);
@@ -212,18 +210,24 @@ export async function updateQuestion(
 
 // ============================================================================
 // Mark Question as Answered
+// @deprecated Use markQuestionAsAnsweredInGame from game.ts instead
+// This function is kept for backward compatibility but should not be used
+// as it marks questions globally instead of per-game
 // ============================================================================
 export async function markQuestionAsAnswered(
-  id: number
+  id: number,
 ): Promise<ActionResult<Question>> {
   return updateQuestion(id, { isAnswered: true });
 }
 
 // ============================================================================
 // Reset Question (mark as unanswered)
+// @deprecated Use game-specific reset in resetGame from game.ts instead
+// This function is kept for backward compatibility but should not be used
+// as it resets questions globally instead of per-game
 // ============================================================================
 export async function resetQuestion(
-  id: number
+  id: number,
 ): Promise<ActionResult<Question>> {
   return updateQuestion(id, { isAnswered: false });
 }
@@ -232,7 +236,7 @@ export async function resetQuestion(
 // Delete Question
 // ============================================================================
 export async function deleteQuestion(
-  id: number
+  id: number,
 ): Promise<ActionResult<{ id: number }>> {
   try {
     const [deleted] = await db
@@ -250,4 +254,3 @@ export async function deleteQuestion(
     return { success: false, error: "Failed to delete question" };
   }
 }
-

@@ -26,9 +26,9 @@ export function CategoryColumn({
       <div
         className={cn(
           "rounded-lg px-2 py-3 text-center sm:px-4 sm:py-4",
-          "bg-gradient-to-b from-blue-700 to-blue-900",
-          "border-2 border-blue-400/30",
-          "shadow-lg"
+          "bg-primary text-primary-foreground",
+          "border-2 border-secondary",
+          "shadow-md"
         )}
         style={{
           backgroundColor: category.color ?? undefined,

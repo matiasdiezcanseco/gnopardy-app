@@ -57,7 +57,7 @@ All features start with **Status: Pending**. Update the status to **Completed** 
 - [38-question-type-selection.md](./38-question-type-selection.md) - Question type selection
 - [39-multiple-choice-answer-management.md](./39-multiple-choice-answer-management.md) - Answer management
 
-### Enhancement Features (40-50) ✅ COMPLETED
+### Enhancement Features (40-53) ✅ COMPLETED
 - [40-case-insensitive-answer-matching.md](./40-case-insensitive-answer-matching.md) - ✅ Flexible answer matching
 - [41-game-history-tracking.md](./41-game-history-tracking.md) - ✅ Game history
 - [42-statistics-tracking.md](./42-statistics-tracking.md) - ✅ Statistics tracking
@@ -69,6 +69,9 @@ All features start with **Status: Pending**. Update the status to **Completed** 
 - [48-theme-customization.md](./48-theme-customization.md) - ✅ Theme customization
 - [49-accessibility-features.md](./49-accessibility-features.md) - ✅ Accessibility
 - [50-timer-functionality.md](./50-timer-functionality.md) - ✅ Timer feature
+- [51-manual-answer-override.md](./51-manual-answer-override.md) - ✅ Manual answer override
+- [52-multiple-player-attempts.md](./52-multiple-player-attempts.md) - ✅ Multiple player attempts
+- [53-inline-player-switching.md](./53-inline-player-switching.md) - ✅ Inline player switching
 
 **See [ENHANCEMENT_FEATURES_SUMMARY.md](../ENHANCEMENT_FEATURES_SUMMARY.md) for detailed implementation notes**  
 **See [QUICK_START_GUIDE.md](../QUICK_START_GUIDE.md) for usage instructions**

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Button } from "~/components/ui/button";
+import { cn } from "~/lib/utils";
 import { Input } from "~/components/ui/input";
 import { Textarea } from "~/components/ui/textarea";
 import {
@@ -68,6 +69,7 @@ export function AdminQuestionsClient({
   const [categoryId, setCategoryId] = useState<number | null>(null);
   const [mediaUrl, setMediaUrl] = useState("");
   const [correctAnswer, setCorrectAnswer] = useState("");
+  const [useMultipleChoice, setUseMultipleChoice] = useState(false);
   const [multipleChoiceAnswers, setMultipleChoiceAnswers] = useState<
     Array<{ id?: number; text: string; isCorrect: boolean; order: number }>
   >([]);
@@ -82,6 +84,7 @@ export function AdminQuestionsClient({
     setCategoryId(categories[0]?.id ?? null);
     setMediaUrl("");
     setCorrectAnswer("");
+    setUseMultipleChoice(false);
     setMultipleChoiceAnswers([]);
     setEditingId(null);
     setIsCreating(false);
@@ -98,6 +101,11 @@ export function AdminQuestionsClient({
     // For text questions, get the correct answer from answers array
     const textAnswer = question.answers?.find((a) => a.isCorrect)?.text ?? "";
     setCorrectAnswer(textAnswer);
+
+    const hasMultipleAnswers =
+      (question.answers?.length ?? 0) > 1 ||
+      question.type === "multiple_choice";
+    setUseMultipleChoice(hasMultipleAnswers);
 
     setMultipleChoiceAnswers(
       question.answers?.map((a) => ({
@@ -129,7 +137,7 @@ export function AdminQuestionsClient({
       return false;
     }
 
-    if (type === "multiple_choice") {
+    if (useMultipleChoice) {
       if (multipleChoiceAnswers.length < 2) {
         setError("Multiple choice questions need at least 2 answer options");
         return false;
@@ -168,7 +176,7 @@ export function AdminQuestionsClient({
         type,
         points,
         categoryId: categoryId!,
-        mediaUrl: mediaUrl || null,
+        mediaUrl: mediaUrl ? mediaUrl : null,
       };
 
       if (editingId !== null) {
@@ -180,8 +188,8 @@ export function AdminQuestionsClient({
           return;
         }
 
-        // Handle answers based on question type
-        if (type === "multiple_choice") {
+        // Handle answers based on multiple choice toggle
+        if (useMultipleChoice) {
           // Multiple choice: manage multiple answers
           const existingAnswerIds = multipleChoiceAnswers
             .filter((a) => a.id)
@@ -215,16 +223,38 @@ export function AdminQuestionsClient({
             }
           }
         } else {
-          // Text/media questions: single correct answer
+          // Single correct answer
+          // First, delete any extra answers if we switched from multiple choice
           const question = questions.find((q) => q.id === editingId);
-          const existingAnswer = question?.answers?.find((a) => a.isCorrect);
+          if (question?.answers && question.answers.length > 1) {
+            // Keep one answer to update, delete others
+            // We'll update the first one found or create new if none
+          }
 
-          if (existingAnswer) {
-            // Update existing answer
-            await updateAnswer(existingAnswer.id, {
+          // Actually, simpler logic:
+          // Find if there is an existing answer we can repurpose.
+          // If there are multiple, we might need to delete others.
+
+          const existingAnswers = question?.answers ?? [];
+          let targetAnswerId = existingAnswers.find((a) => a.isCorrect)?.id;
+
+          if (!targetAnswerId && existingAnswers.length > 0) {
+            targetAnswerId = existingAnswers[0]?.id;
+          }
+
+          if (targetAnswerId) {
+            // Update this answer
+            await updateAnswer(targetAnswerId, {
               text: correctAnswer,
               isCorrect: true,
             });
+
+            // Delete other answers
+            for (const ans of existingAnswers) {
+              if (ans.id !== targetAnswerId) {
+                await deleteAnswer(ans.id);
+              }
+            }
           } else {
             // Create new answer
             await createAnswer({
@@ -236,12 +266,33 @@ export function AdminQuestionsClient({
         }
 
         // Refresh question list - Just update with the returned data, answers will be reloaded
+        // Note: For a real app we should reload from server or construct the object carefully
+        // Here we just close the form so the list will update on refresh or we can optimize later
+        // But the state update below needs to reflect changes locally if we don't reload page
+
+        // We can't easily construct the full new state without fetching back the answers
+        // or simulating the answer updates.
+        // For now, let's just trigger a reload or update local state best effort.
+
+        // Simulating local update for immediate feedback
+        // This is complex because we need the IDs of new answers.
+        // Let's just assume success and reset. The user will see changes if they refresh.
+        // Or better, we can reload the page or use router.refresh() if using Next.js router.
+
+        // But we are in client component, we can just update local list optimistically or minimally.
+        // The list view doesn't show answers detail except one correct one.
+
+        // We'll just update the question fields and keep answers stale until refresh for now,
+        // or try to update single answer display.
+
         setQuestions((prev) =>
-          prev.map((q) =>
-            q.id === editingId ? { ...result.data, answers: q.answers } : q,
+          prev.map(
+            (q) =>
+              q.id === editingId ? { ...result.data, answers: q.answers } : q, // Answers stale but OK for now
           ),
         );
         resetForm();
+        window.location.reload(); // Force reload to get fresh answers
       } else {
         // Create new question
         const result = await createQuestion(questionData);
@@ -253,9 +304,8 @@ export function AdminQuestionsClient({
 
         const newQuestion = result.data;
 
-        // Create answers based on question type
-        if (type === "multiple_choice") {
-          // Create multiple choice answers
+        // Create answers
+        if (useMultipleChoice) {
           for (const answer of multipleChoiceAnswers) {
             await createAnswer({
               questionId: newQuestion.id,
@@ -265,7 +315,6 @@ export function AdminQuestionsClient({
             });
           }
         } else {
-          // Create single correct answer for text/media questions
           await createAnswer({
             questionId: newQuestion.id,
             text: correctAnswer,
@@ -273,8 +322,9 @@ export function AdminQuestionsClient({
           });
         }
 
-        setQuestions((prev) => [...prev, newQuestion]);
+        // setQuestions((prev) => [...prev, newQuestion]); // Missing answers prop
         resetForm();
+        window.location.reload(); // Force reload to get fresh answers
       }
     } catch (err) {
       setError("An unexpected error occurred");
@@ -328,50 +378,65 @@ export function AdminQuestionsClient({
   }
 
   const renderTypeSpecificFields = () => {
-    if (type === "multiple_choice") {
-      return (
-        <MultipleChoiceManager
-          value={multipleChoiceAnswers}
-          onChange={setMultipleChoiceAnswers}
-        />
-      );
-    }
+    const showMedia = type === "audio" || type === "video" || type === "image";
 
-    if (type === "audio" || type === "video" || type === "image") {
-      return (
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Media File *</label>
-          {mediaUrl ? (
-            <div className="space-y-2">
-              <div className="flex items-center justify-between rounded-lg border p-3">
-                <span className="truncate text-sm">{mediaUrl}</span>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setMediaUrl("")}
-                >
-                  Remove
-                </Button>
+    return (
+      <div className="space-y-4">
+        {showMedia && (
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Media File *</label>
+            {mediaUrl ? (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between rounded-lg border p-3">
+                  <span className="truncate text-sm">{mediaUrl}</span>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setMediaUrl("")}
+                  >
+                    Remove
+                  </Button>
+                </div>
               </div>
-            </div>
-          ) : (
-            <MediaUpload
-              onUpload={setMediaUrl}
-              accept={
-                type === "audio"
-                  ? "audio/*"
-                  : type === "video"
-                    ? "video/*"
-                    : "image/*"
-              }
-            />
-          )}
-        </div>
-      );
-    }
+            ) : (
+              <MediaUpload
+                onUpload={setMediaUrl}
+                accept={
+                  type === "audio"
+                    ? "audio/*"
+                    : type === "video"
+                      ? "video/*"
+                      : "image/*"
+                }
+              />
+            )}
+          </div>
+        )}
 
-    return null;
+        {type !== "multiple_choice" && (
+          <div className="flex items-center gap-2 py-2">
+            <input
+              type="checkbox"
+              id="useMultipleChoice"
+              checked={useMultipleChoice}
+              onChange={(e) => setUseMultipleChoice(e.target.checked)}
+              className="h-4 w-4 rounded border-gray-300"
+            />
+            <label htmlFor="useMultipleChoice" className="text-sm font-medium">
+              Use Multiple Choice Answers
+            </label>
+          </div>
+        )}
+
+        {(type === "multiple_choice" || useMultipleChoice) && (
+          <MultipleChoiceManager
+            value={multipleChoiceAnswers}
+            onChange={setMultipleChoiceAnswers}
+          />
+        )}
+      </div>
+    );
   };
 
   return (
@@ -488,7 +553,7 @@ export function AdminQuestionsClient({
               {renderTypeSpecificFields()}
 
               {/* Correct Answer (for non-multiple-choice) */}
-              {type !== "multiple_choice" && (
+              {type !== "multiple_choice" && !useMultipleChoice && (
                 <div className="space-y-2">
                   <label className="text-sm font-medium">
                     Correct Answer *
@@ -618,6 +683,9 @@ export function AdminQuestionsClient({
                               style={{
                                 backgroundColor: category.color ?? undefined,
                               }}
+                              className={cn(
+                                category.color && "text-white hover:text-white",
+                              )}
                             >
                               {category.name}
                             </Badge>

@@ -113,6 +113,32 @@ export const players = createTable(
 );
 
 // ============================================================================
+// Game Questions Junction Table
+// Tracks which questions have been answered in each game
+// ============================================================================
+export const gameQuestions = createTable(
+  "game_question",
+  (d) => ({
+    id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
+    gameId: d
+      .integer()
+      .references(() => games.id, { onDelete: "cascade" })
+      .notNull(),
+    questionId: d
+      .integer()
+      .references(() => questions.id, { onDelete: "cascade" })
+      .notNull(),
+    isAnswered: d.boolean().default(false).notNull(),
+    answeredAt: d.timestamp({ withTimezone: true }),
+  }),
+  (t) => [
+    index("game_question_game_idx").on(t.gameId),
+    index("game_question_question_idx").on(t.questionId),
+    index("game_question_composite_idx").on(t.gameId, t.questionId),
+  ],
+);
+
+// ============================================================================
 // Game History Table (Feature 41)
 // ============================================================================
 export const gameHistory = createTable(
@@ -219,6 +245,9 @@ export type NewAnswer = typeof answers.$inferInsert;
 
 export type Player = typeof players.$inferSelect;
 export type NewPlayer = typeof players.$inferInsert;
+
+export type GameQuestion = typeof gameQuestions.$inferSelect;
+export type NewGameQuestion = typeof gameQuestions.$inferInsert;
 
 export type GameHistory = typeof gameHistory.$inferSelect;
 export type NewGameHistory = typeof gameHistory.$inferInsert;

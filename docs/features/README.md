@@ -72,7 +72,7 @@ All features start with **Status: Pending**. Update the status to **Completed** 
 - [51-manual-answer-override.md](./51-manual-answer-override.md) - ✅ Manual answer override
 - [52-multiple-player-attempts.md](./52-multiple-player-attempts.md) - ✅ Multiple player attempts
 - [53-inline-player-switching.md](./53-inline-player-switching.md) - ✅ Inline player switching
-- [54-manual-score-adjustment.md](./54-manual-score-adjustment.md) - ✅ Manual score adjustment
+- [54-fullscreen-mode.md](./54-fullscreen-mode.md) - ✅ Fullscreen mode for immersive gameplay
 
 **See [ENHANCEMENT_FEATURES_SUMMARY.md](../ENHANCEMENT_FEATURES_SUMMARY.md) for detailed implementation notes**  
 **See [QUICK_START_GUIDE.md](../QUICK_START_GUIDE.md) for usage instructions**

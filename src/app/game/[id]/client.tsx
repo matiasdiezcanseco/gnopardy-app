@@ -10,6 +10,7 @@ import { ManualScoreAdjustment } from "~/components/player/ManualScoreAdjustment
 import { ResetGameButton } from "~/components/game/ResetGameButton";
 import { Button } from "~/components/ui/button";
 import { checkGameCompletion } from "~/server/actions/game";
+import { cn } from "~/lib/utils";
 import type { Game, Category, Player } from "~/server/db/schema";
 
 interface QuestionWithCategory {
@@ -44,6 +45,7 @@ export function GamePageClient({
     (game.status as "active" | "completed") || "active",
   );
   const [winner, setWinner] = useState<Player | null>(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   const handlePlayerAdded = useCallback((player: Player) => {
     setPlayers((prev) => [...prev, player]);
@@ -59,6 +61,53 @@ export function GamePageClient({
       prev.map((p) => (p.id === updatedPlayer.id ? updatedPlayer : p)),
     );
   }, []);
+
+  // Toggle fullscreen mode
+  const toggleFullscreen = useCallback(async () => {
+    if (!document.fullscreenElement) {
+      try {
+        await document.documentElement.requestFullscreen();
+        setIsFullscreen(true);
+      } catch (err) {
+        console.error("Error attempting to enable fullscreen:", err);
+      }
+    } else {
+      try {
+        await document.exitFullscreen();
+        setIsFullscreen(false);
+      } catch (err) {
+        console.error("Error attempting to exit fullscreen:", err);
+      }
+    }
+  }, []);
+
+  // Listen for fullscreen changes (e.g., user presses ESC or F11)
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    return () => {
+      document.removeEventListener("fullscreenchange", handleFullscreenChange);
+    };
+  }, []);
+
+  // Listen for F11 key press to trigger fullscreen
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // F11 key
+      if (event.key === "F11") {
+        event.preventDefault(); // Prevent default browser fullscreen
+        void toggleFullscreen(); // Use our custom fullscreen instead
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [toggleFullscreen]);
 
   // Check if game is completed (all questions answered)
   const allQuestionsAnswered = questions.every((q) => q.isAnswered);
@@ -78,19 +127,56 @@ export function GamePageClient({
   }, [allQuestionsAnswered, gameStatus, game.id]);
 
   return (
-    <div className="bg-background text-foreground min-h-screen transition-colors duration-300">
+    <div className={cn(
+      "bg-background text-foreground min-h-screen transition-colors duration-300",
+      isFullscreen && "h-screen overflow-hidden"
+    )}>
       {/* Header */}
-      <header className="bg-card/50 sticky top-0 z-50 border-b backdrop-blur">
-        <div className="flex w-full items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
+      <header className={cn(
+        "bg-card/50 border-b backdrop-blur",
+        isFullscreen ? "sticky top-0 z-50 py-2" : "sticky top-0 z-50"
+      )}>
+        <div className={cn(
+          "flex w-full items-center justify-between px-4",
+          isFullscreen ? "py-2" : "py-4 sm:px-6 lg:px-8"
+        )}>
           <Link
             href="/"
-            className="text-primary hover:text-primary/80 text-xl font-bold transition-colors"
+            className={cn(
+              "text-primary hover:text-primary/80 font-bold transition-colors",
+              isFullscreen ? "text-base" : "text-xl"
+            )}
           >
             Jeopardy!
           </Link>
           <div className="flex items-center gap-4">
-            <ResetGameButton gameId={game.id} />
-            <span className="text-muted-foreground text-sm font-medium">
+            <Button
+              variant="outline"
+              size={isFullscreen ? "sm" : "default"}
+              onClick={toggleFullscreen}
+              title={isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}
+            >
+              {isFullscreen ? (
+                <>
+                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                  <span className="ml-2 hidden sm:inline">Exit</span>
+                </>
+              ) : (
+                <>
+                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                  </svg>
+                  <span className="ml-2 hidden sm:inline">Fullscreen</span>
+                </>
+              )}
+            </Button>
+            {!isFullscreen && <ResetGameButton gameId={game.id} />}
+            <span className={cn(
+              "text-muted-foreground font-medium",
+              isFullscreen ? "text-xs" : "text-sm"
+            )}>
               Game #{game.id}
             </span>
             {gameStatus === "completed" && (
@@ -102,8 +188,172 @@ export function GamePageClient({
         </div>
       </header>
 
-      <main className="w-full px-4 py-8 sm:px-6 lg:px-8">
-        <div className="grid gap-8 lg:grid-cols-[1fr_320px]">
+      <main className={cn(
+        "w-full",
+        isFullscreen ? "h-[calc(100vh-56px)] overflow-hidden" : "px-4 py-8 sm:px-6 lg:px-8"
+      )}>
+        {isFullscreen ? (
+          /* Fullscreen Layout */
+          <div className="flex h-full flex-col gap-2 p-2">
+            {/* Compact Top Bar - Player Selection and Scoreboard */}
+            <div className="flex gap-2">
+              {/* Compact Player Selection */}
+              <div className="bg-card/80 backdrop-blur rounded-lg border p-2 flex-shrink-0">
+                <div className="mb-2 flex items-center justify-between gap-2">
+                  <h3 className="text-xs font-semibold text-foreground">Player</h3>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-6 px-2 text-xs"
+                    onClick={() => setShowAddPlayer(!showAddPlayer)}
+                  >
+                    {showAddPlayer ? "✕" : "+"}
+                  </Button>
+                </div>
+
+                {showAddPlayer && (
+                  <div className="mb-2">
+                    <AddPlayer
+                      gameId={game.id}
+                      onPlayerAdded={handlePlayerAdded}
+                    />
+                  </div>
+                )}
+
+                {/* Compact Player Selector */}
+                <div className="flex gap-1 flex-wrap max-w-md">
+                  {players.length === 0 ? (
+                    <div className="text-xs text-muted-foreground py-2">
+                      Add players to start
+                    </div>
+                  ) : (
+                    players.map((player) => {
+                      const isSelected = selectedPlayerId === player.id;
+                      const initials = player.name
+                        .split(" ")
+                        .map((n) => n[0])
+                        .join("")
+                        .toUpperCase()
+                        .slice(0, 2);
+
+                      return (
+                        <button
+                          key={player.id}
+                          onClick={() => handleSelectPlayer(player.id)}
+                          className={cn(
+                            "flex items-center gap-1.5 rounded-md px-2 py-1.5 text-xs",
+                            "transition-all duration-200 border",
+                            isSelected
+                              ? "bg-primary/10 text-primary border-primary shadow-md"
+                              : "bg-card text-card-foreground border-border hover:bg-accent hover:border-accent"
+                          )}
+                          title={`${player.name} - $${player.score.toLocaleString()}`}
+                        >
+                          <div
+                            className={cn(
+                              "flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold",
+                              isSelected
+                                ? "bg-primary text-primary-foreground"
+                                : "bg-secondary text-secondary-foreground"
+                            )}
+                          >
+                            {initials}
+                          </div>
+                          <div className="text-left">
+                            <div className="font-medium leading-none">{player.name}</div>
+                            <div className={cn(
+                              "text-xs leading-none mt-0.5",
+                              isSelected ? "text-primary" : "text-muted-foreground"
+                            )}>
+                              ${player.score.toLocaleString()}
+                            </div>
+                          </div>
+                        </button>
+                      );
+                    })
+                  )}
+                </div>
+              </div>
+
+              {/* Compact Scoreboard */}
+              <div className="bg-card/80 backdrop-blur rounded-lg border p-2 flex-1 max-w-sm">
+                <h3 className="text-xs font-semibold text-foreground mb-2">Scoreboard</h3>
+                <div className="space-y-1 max-h-24 overflow-y-auto fullscreen-scrollbar">
+                  {[...players]
+                    .sort((a, b) => b.score - a.score)
+                    .slice(0, 5)
+                    .map((player, index) => (
+                      <div
+                        key={player.id}
+                        className={cn(
+                          "flex items-center justify-between gap-2 rounded px-2 py-1",
+                          selectedPlayerId === player.id
+                            ? "bg-primary/10 border border-primary/20"
+                            : "bg-card/50"
+                        )}
+                      >
+                        <div className="flex items-center gap-2 flex-1 min-w-0">
+                          <span className="text-xs font-bold text-muted-foreground w-4">
+                            #{index + 1}
+                          </span>
+                          <span className="text-xs font-medium truncate">
+                            {player.name}
+                          </span>
+                        </div>
+                        <span className="text-xs font-bold tabular-nums">
+                          ${player.score.toLocaleString()}
+                        </span>
+                      </div>
+                    ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Main Game Board - Full Focus */}
+            <div className="flex-1 overflow-auto">
+              {allQuestionsAnswered ? (
+                <div className="border-secondary bg-card rounded-xl border p-12 text-center shadow-md h-full flex flex-col items-center justify-center">
+                  <h2 className="text-primary mb-6 text-3xl font-bold">
+                    🎉 Game Complete!
+                  </h2>
+                  {winner && (
+                    <div className="bg-secondary/10 border-secondary/20 mb-8 inline-block min-w-[300px] rounded-lg border p-6">
+                      <p className="text-muted-foreground mb-2 text-xl">Winner</p>
+                      <p className="text-primary mb-2 text-4xl font-bold">
+                        {winner.name}
+                      </p>
+                      <p className="text-foreground text-2xl font-semibold">
+                        ${winner.score.toLocaleString()}
+                      </p>
+                    </div>
+                  )}
+                  <p className="text-muted-foreground mb-8 text-lg">
+                    All questions have been answered. Check the scoreboard for
+                    final results!
+                  </p>
+                  <div className="flex justify-center gap-4">
+                    <Button
+                      size="lg"
+                      className="px-8"
+                      onClick={toggleFullscreen}
+                    >
+                      Exit Fullscreen
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <GameBoard
+                  categories={categories}
+                  questions={questions}
+                  gameId={game.id}
+                  selectedPlayerId={selectedPlayerId}
+                />
+              )}
+            </div>
+          </div>
+        ) : (
+          /* Regular Layout */
+          <div className="grid gap-8 lg:grid-cols-[1fr_320px]">
           {/* Main Game Area */}
           <div className="space-y-8">
             {/* Player Selection */}
@@ -192,6 +442,7 @@ export function GamePageClient({
             />
           </aside>
         </div>
+        )}
       </main>
     </div>
   );

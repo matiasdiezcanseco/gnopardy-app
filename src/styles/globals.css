@@ -156,3 +156,41 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Fullscreen mode enhancements */
+:fullscreen {
+  overflow: hidden;
+}
+
+/* Webkit browsers (Chrome, Safari) */
+:-webkit-full-screen {
+  overflow: hidden;
+}
+
+/* Firefox */
+:-moz-full-screen {
+  overflow: hidden;
+}
+
+/* Microsoft Edge */
+:-ms-fullscreen {
+  overflow: hidden;
+}
+
+/* Smooth scrollbar for fullscreen scoreboard */
+.fullscreen-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.fullscreen-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.fullscreen-scrollbar::-webkit-scrollbar-thumb {
+  background: oklch(0.5 0.05 260);
+  border-radius: 2px;
+}
+
+.fullscreen-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: oklch(0.4 0.08 260);
+}

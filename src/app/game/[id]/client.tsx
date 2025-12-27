@@ -6,11 +6,11 @@ import { GameBoard } from "~/components/game/GameBoard";
 import { ScoreBoard } from "~/components/game/ScoreBoard";
 import { PlayerSelector } from "~/components/player/PlayerSelector";
 import { AddPlayer } from "~/components/player/AddPlayer";
+import { ManualScoreAdjustment } from "~/components/player/ManualScoreAdjustment";
 import { ResetGameButton } from "~/components/game/ResetGameButton";
 import { Button } from "~/components/ui/button";
 import { checkGameCompletion } from "~/server/actions/game";
 import type { Game, Category, Player } from "~/server/db/schema";
-import { cn } from "~/lib/utils";
 
 interface QuestionWithCategory {
   id: number;
@@ -41,7 +41,7 @@ export function GamePageClient({
   const [questions, setQuestions] = useState(initialQuestions);
   const [showAddPlayer, setShowAddPlayer] = useState(false);
   const [gameStatus, setGameStatus] = useState<"active" | "completed">(
-    (game.status as "active" | "completed") || "active"
+    (game.status as "active" | "completed") || "active",
   );
   const [winner, setWinner] = useState<Player | null>(null);
 
@@ -54,13 +54,19 @@ export function GamePageClient({
     setSelectedPlayerId(playerId);
   }, []);
 
+  const handleScoreUpdated = useCallback((updatedPlayer: Player) => {
+    setPlayers((prev) =>
+      prev.map((p) => (p.id === updatedPlayer.id ? updatedPlayer : p)),
+    );
+  }, []);
+
   // Check if game is completed (all questions answered)
   const allQuestionsAnswered = questions.every((q) => q.isAnswered);
 
   // Check for game completion when questions change
   useEffect(() => {
     if (allQuestionsAnswered && gameStatus === "active") {
-      checkGameCompletion(game.id).then((result) => {
+      void checkGameCompletion(game.id).then((result) => {
         if (result.success && result.data.isComplete) {
           setGameStatus("completed");
           if (result.data.winner) {
@@ -72,16 +78,19 @@ export function GamePageClient({
   }, [allQuestionsAnswered, gameStatus, game.id]);
 
   return (
-    <div className="min-h-screen bg-background text-foreground transition-colors duration-300">
+    <div className="bg-background text-foreground min-h-screen transition-colors duration-300">
       {/* Header */}
-      <header className="border-b bg-card/50 backdrop-blur sticky top-0 z-50">
+      <header className="bg-card/50 sticky top-0 z-50 border-b backdrop-blur">
         <div className="container mx-auto flex items-center justify-between px-6 py-4">
-          <Link href="/" className="text-xl font-bold text-primary hover:text-primary/80 transition-colors">
+          <Link
+            href="/"
+            className="text-primary hover:text-primary/80 text-xl font-bold transition-colors"
+          >
             Jeopardy!
           </Link>
           <div className="flex items-center gap-4">
             <ResetGameButton gameId={game.id} />
-            <span className="text-sm font-medium text-muted-foreground">
+            <span className="text-muted-foreground text-sm font-medium">
               Game #{game.id}
             </span>
             {gameStatus === "completed" && (
@@ -98,9 +107,9 @@ export function GamePageClient({
           {/* Main Game Area */}
           <div className="space-y-8">
             {/* Player Selection */}
-            <div className="rounded-xl border bg-card p-6 shadow-sm">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-lg font-bold text-foreground">
+            <div className="bg-card rounded-xl border p-6 shadow-sm">
+              <div className="mb-6 flex items-center justify-between">
+                <h2 className="text-foreground text-lg font-bold">
                   Select Player
                 </h2>
                 <Button
@@ -130,25 +139,30 @@ export function GamePageClient({
 
             {/* Game Board */}
             {allQuestionsAnswered ? (
-              <div className="rounded-xl border border-secondary bg-card p-12 text-center shadow-md">
-                <h2 className="text-3xl font-bold text-primary mb-6">
+              <div className="border-secondary bg-card rounded-xl border p-12 text-center shadow-md">
+                <h2 className="text-primary mb-6 text-3xl font-bold">
                   🎉 Game Complete!
                 </h2>
                 {winner && (
-                  <div className="mb-8 p-6 rounded-lg bg-secondary/10 border border-secondary/20 inline-block min-w-[300px]">
-                    <p className="text-xl text-muted-foreground mb-2">Winner</p>
-                    <p className="text-4xl font-bold text-primary mb-2">{winner.name}</p>
-                    <p className="text-2xl font-semibold text-foreground">
+                  <div className="bg-secondary/10 border-secondary/20 mb-8 inline-block min-w-[300px] rounded-lg border p-6">
+                    <p className="text-muted-foreground mb-2 text-xl">Winner</p>
+                    <p className="text-primary mb-2 text-4xl font-bold">
+                      {winner.name}
+                    </p>
+                    <p className="text-foreground text-2xl font-semibold">
                       ${winner.score.toLocaleString()}
                     </p>
                   </div>
                 )}
-                <p className="text-lg text-muted-foreground mb-8">
-                  All questions have been answered. Check the scoreboard for final results!
+                <p className="text-muted-foreground mb-8 text-lg">
+                  All questions have been answered. Check the scoreboard for
+                  final results!
                 </p>
-                <div className="flex gap-4 justify-center">
+                <div className="flex justify-center gap-4">
                   <Link href="/">
-                    <Button size="lg" className="px-8">Start New Game</Button>
+                    <Button size="lg" className="px-8">
+                      Start New Game
+                    </Button>
                   </Link>
                 </div>
               </div>
@@ -163,12 +177,18 @@ export function GamePageClient({
           </div>
 
           {/* Sidebar - Scoreboard */}
-          <aside className="lg:sticky lg:top-24 lg:self-start space-y-6">
+          <aside className="space-y-6 lg:sticky lg:top-24 lg:self-start">
             <ScoreBoard
               players={players}
               selectedPlayerId={selectedPlayerId}
               onSelectPlayer={handleSelectPlayer}
               title="Scoreboard"
+            />
+
+            {/* Manual Score Adjustment */}
+            <ManualScoreAdjustment
+              players={players}
+              onScoreUpdated={handleScoreUpdated}
             />
           </aside>
         </div>

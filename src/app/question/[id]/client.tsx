@@ -93,7 +93,7 @@ export function QuestionPageClient({
         const attemptCheck = await hasPlayerAttemptedQuestion(
           gameId,
           currentPlayer.id,
-          question.id
+          question.id,
         );
 
         if (!attemptCheck.success) {
@@ -102,7 +102,9 @@ export function QuestionPageClient({
         }
 
         if (attemptCheck.data) {
-          setError("You have already attempted this question. Let another player try!");
+          setError(
+            "You have already attempted this question. Let another player try!",
+          );
           return;
         }
 
@@ -117,7 +119,10 @@ export function QuestionPageClient({
 
         // Update player score
         const pointsDelta = isCorrect ? points : -points;
-        const scoreResult = await updatePlayerScore(currentPlayer.id, pointsDelta);
+        const scoreResult = await updatePlayerScore(
+          currentPlayer.id,
+          pointsDelta,
+        );
 
         if (!scoreResult.success) {
           setError("Failed to update score. Please try again.");
@@ -125,10 +130,17 @@ export function QuestionPageClient({
         }
 
         // Update current player's score in state
-        setCurrentPlayer(prev => ({ ...prev, score: prev.score + pointsDelta }));
-        setAllPlayers(prev => prev.map(p => 
-          p.id === currentPlayer.id ? { ...p, score: p.score + pointsDelta } : p
-        ));
+        setCurrentPlayer((prev) => ({
+          ...prev,
+          score: prev.score + pointsDelta,
+        }));
+        setAllPlayers((prev) =>
+          prev.map((p) =>
+            p.id === currentPlayer.id
+              ? { ...p, score: p.score + pointsDelta }
+              : p,
+          ),
+        );
 
         // Record answer in history
         const historyResult = await recordAnswerHistory({
@@ -141,12 +153,18 @@ export function QuestionPageClient({
         });
 
         if (!historyResult.success) {
-          console.error("Failed to record answer history:", historyResult.error);
+          console.error(
+            "Failed to record answer history:",
+            historyResult.error,
+          );
         }
 
         // Only mark question as answered if the answer is correct
         if (isCorrect) {
-          const markResult = await markQuestionAsAnsweredInGame(gameId, question.id);
+          const markResult = await markQuestionAsAnsweredInGame(
+            gameId,
+            question.id,
+          );
 
           if (!markResult.success) {
             setError("Failed to mark question as answered.");
@@ -171,7 +189,7 @@ export function QuestionPageClient({
         const attemptCheck = await hasPlayerAttemptedQuestion(
           gameId,
           currentPlayer.id,
-          question.id
+          question.id,
         );
 
         if (!attemptCheck.success) {
@@ -180,13 +198,15 @@ export function QuestionPageClient({
         }
 
         if (attemptCheck.data) {
-          setError("You have already attempted this question. Let another player try!");
+          setError(
+            "You have already attempted this question. Let another player try!",
+          );
           return;
         }
 
         const validationResult = await validateMultipleChoiceAnswer(
           question.id,
-          answerId
+          answerId,
         );
 
         if (!validationResult.success) {
@@ -198,7 +218,10 @@ export function QuestionPageClient({
 
         // Update player score
         const pointsDelta = isCorrect ? points : -points;
-        const scoreResult = await updatePlayerScore(currentPlayer.id, pointsDelta);
+        const scoreResult = await updatePlayerScore(
+          currentPlayer.id,
+          pointsDelta,
+        );
 
         if (!scoreResult.success) {
           setError("Failed to update score. Please try again.");
@@ -206,10 +229,17 @@ export function QuestionPageClient({
         }
 
         // Update current player's score in state
-        setCurrentPlayer(prev => ({ ...prev, score: prev.score + pointsDelta }));
-        setAllPlayers(prev => prev.map(p => 
-          p.id === currentPlayer.id ? { ...p, score: p.score + pointsDelta } : p
-        ));
+        setCurrentPlayer((prev) => ({
+          ...prev,
+          score: prev.score + pointsDelta,
+        }));
+        setAllPlayers((prev) =>
+          prev.map((p) =>
+            p.id === currentPlayer.id
+              ? { ...p, score: p.score + pointsDelta }
+              : p,
+          ),
+        );
 
         // Record answer in history
         const historyResult = await recordAnswerHistory({
@@ -222,12 +252,18 @@ export function QuestionPageClient({
         });
 
         if (!historyResult.success) {
-          console.error("Failed to record answer history:", historyResult.error);
+          console.error(
+            "Failed to record answer history:",
+            historyResult.error,
+          );
         }
 
         // Only mark question as answered if the answer is correct
         if (isCorrect) {
-          const markResult = await markQuestionAsAnsweredInGame(gameId, question.id);
+          const markResult = await markQuestionAsAnsweredInGame(
+            gameId,
+            question.id,
+          );
 
           if (!markResult.success) {
             setError("Failed to mark question as answered.");
@@ -248,26 +284,11 @@ export function QuestionPageClient({
     setError(null);
     startTransition(async () => {
       try {
-        // Check if player has already attempted this question
-        const attemptCheck = await hasPlayerAttemptedQuestion(
-          gameId,
-          currentPlayer.id,
-          question.id
-        );
-
-        if (!attemptCheck.success) {
-          setError("Failed to check attempt status. Please try again.");
-          return;
-        }
-
-        if (attemptCheck.data) {
-          setError("You have already attempted this question. Let another player try!");
-          return;
-        }
-
+        // Manual override bypasses the attempt check - host can force correct/incorrect
+        // even if the player has already attempted the question
         const validationResult = await manualAnswerOverride(
           question.id,
-          forceCorrect
+          forceCorrect,
         );
 
         if (!validationResult.success) {
@@ -279,7 +300,10 @@ export function QuestionPageClient({
 
         // Update player score
         const pointsDelta = isCorrect ? points : -points;
-        const scoreResult = await updatePlayerScore(currentPlayer.id, pointsDelta);
+        const scoreResult = await updatePlayerScore(
+          currentPlayer.id,
+          pointsDelta,
+        );
 
         if (!scoreResult.success) {
           setError("Failed to update score. Please try again.");
@@ -287,10 +311,17 @@ export function QuestionPageClient({
         }
 
         // Update current player's score in state
-        setCurrentPlayer(prev => ({ ...prev, score: prev.score + pointsDelta }));
-        setAllPlayers(prev => prev.map(p => 
-          p.id === currentPlayer.id ? { ...p, score: p.score + pointsDelta } : p
-        ));
+        setCurrentPlayer((prev) => ({
+          ...prev,
+          score: prev.score + pointsDelta,
+        }));
+        setAllPlayers((prev) =>
+          prev.map((p) =>
+            p.id === currentPlayer.id
+              ? { ...p, score: p.score + pointsDelta }
+              : p,
+          ),
+        );
 
         // Record answer in history
         const historyResult = await recordAnswerHistory({
@@ -303,12 +334,18 @@ export function QuestionPageClient({
         });
 
         if (!historyResult.success) {
-          console.error("Failed to record answer history:", historyResult.error);
+          console.error(
+            "Failed to record answer history:",
+            historyResult.error,
+          );
         }
 
         // Only mark question as answered if the answer is correct
         if (isCorrect) {
-          const markResult = await markQuestionAsAnsweredInGame(gameId, question.id);
+          const markResult = await markQuestionAsAnsweredInGame(
+            gameId,
+            question.id,
+          );
 
           if (!markResult.success) {
             setError("Failed to mark question as answered.");
@@ -350,13 +387,13 @@ export function QuestionPageClient({
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground transition-colors duration-300">
+    <div className="bg-background text-foreground min-h-screen transition-colors duration-300">
       {/* Header */}
-      <header className="border-b bg-card/50 backdrop-blur sticky top-0 z-50">
+      <header className="bg-card/50 sticky top-0 z-50 border-b backdrop-blur">
         <div className="container mx-auto flex items-center justify-between px-6 py-4">
           <Link
             href={`/game/${gameId}`}
-            className="flex items-center gap-2 text-primary hover:text-primary/80 transition-colors font-medium"
+            className="text-primary hover:text-primary/80 flex items-center gap-2 font-medium transition-colors"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -372,10 +409,10 @@ export function QuestionPageClient({
             </svg>
             Back to Game
           </Link>
-          <div className="flex items-center gap-3 bg-secondary/10 px-4 py-2 rounded-full border border-secondary/20">
-            <span className="text-sm text-muted-foreground">Playing as:</span>
-            <span className="font-bold text-primary">{currentPlayer.name}</span>
-            <span className="text-sm font-medium text-foreground">
+          <div className="bg-secondary/10 border-secondary/20 flex items-center gap-3 rounded-full border px-4 py-2">
+            <span className="text-muted-foreground text-sm">Playing as:</span>
+            <span className="text-primary font-bold">{currentPlayer.name}</span>
+            <span className="text-foreground text-sm font-medium">
               (${currentPlayer.score.toLocaleString()})
             </span>
           </div>
@@ -397,27 +434,27 @@ export function QuestionPageClient({
 
               {/* Show player selector if answer was incorrect */}
               {!result.isCorrect && (
-                <div className="rounded-xl border bg-card p-6 shadow-md space-y-4">
+                <div className="bg-card space-y-4 rounded-xl border p-6 shadow-md">
                   <div className="text-center">
-                    <h3 className="text-xl font-bold text-foreground mb-2">
+                    <h3 className="text-foreground mb-2 text-xl font-bold">
                       Question Still Available
                     </h3>
                     <p className="text-muted-foreground mb-4">
                       Select another player to attempt this question
                     </p>
                   </div>
-                  
+
                   <PlayerSelector
-                    players={allPlayers.filter(p => p.id !== currentPlayer.id)}
+                    players={allPlayers.filter(
+                      (p) => p.id !== currentPlayer.id,
+                    )}
                     selectedPlayerId={null}
                     onSelectPlayer={handlePlayerSwitch}
                   />
 
-                  <div className="pt-4 border-t flex justify-center">
+                  <div className="flex justify-center border-t pt-4">
                     <Link href={`/game/${gameId}`}>
-                      <Button variant="outline">
-                        Return to Game Board
-                      </Button>
+                      <Button variant="outline">Return to Game Board</Button>
                     </Link>
                   </div>
                 </div>
@@ -437,12 +474,12 @@ export function QuestionPageClient({
                 onHintRevealed={handleHintRevealed}
               />
 
-              <div className="rounded-xl border bg-card p-8 shadow-md">
-                <h3 className="mb-6 text-lg font-bold text-foreground">
+              <div className="bg-card rounded-xl border p-8 shadow-md">
+                <h3 className="text-foreground mb-6 text-lg font-bold">
                   Your Answer
                 </h3>
                 {error && (
-                  <div className="mb-6 rounded-lg bg-destructive/10 border border-destructive/20 p-4 text-sm font-medium text-destructive">
+                  <div className="bg-destructive/10 border-destructive/20 text-destructive mb-6 rounded-lg border p-4 text-sm font-medium">
                     {error}
                   </div>
                 )}
@@ -450,25 +487,26 @@ export function QuestionPageClient({
               </div>
 
               {/* Manual Override Section */}
-              <div className="rounded-xl border border-dashed border-muted-foreground/30 bg-card/50 p-6 shadow-sm">
-                <h3 className="mb-3 text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+              <div className="border-muted-foreground/30 bg-card/50 rounded-xl border border-dashed p-6 shadow-sm">
+                <h3 className="text-muted-foreground mb-3 text-sm font-semibold tracking-wide uppercase">
                   Host Controls
                 </h3>
-                <p className="mb-4 text-sm text-muted-foreground">
-                  Manually award or deny points if the answer is close but not exact:
+                <p className="text-muted-foreground mb-4 text-sm">
+                  Manually award or deny points if the answer is close but not
+                  exact:
                 </p>
                 <div className="flex gap-3">
                   <Button
                     onClick={() => handleManualOverride(true)}
                     disabled={isPending}
-                    className="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold"
+                    className="flex-1 bg-green-600 font-semibold text-white hover:bg-green-700"
                     size="lg"
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       viewBox="0 0 24 24"
                       fill="currentColor"
-                      className="h-5 w-5 mr-2"
+                      className="mr-2 h-5 w-5"
                     >
                       <path
                         fillRule="evenodd"
@@ -481,14 +519,14 @@ export function QuestionPageClient({
                   <Button
                     onClick={() => handleManualOverride(false)}
                     disabled={isPending}
-                    className="flex-1 bg-red-600 hover:bg-red-700 text-white font-semibold"
+                    className="flex-1 bg-red-600 font-semibold text-white hover:bg-red-700"
                     size="lg"
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       viewBox="0 0 24 24"
                       fill="currentColor"
-                      className="h-5 w-5 mr-2"
+                      className="mr-2 h-5 w-5"
                     >
                       <path
                         fillRule="evenodd"
@@ -504,7 +542,11 @@ export function QuestionPageClient({
               {/* Skip Button */}
               <div className="text-center">
                 <Link href={`/game/${gameId}`}>
-                  <Button variant="ghost" className="text-muted-foreground hover:text-foreground" size="sm">
+                  <Button
+                    variant="ghost"
+                    className="text-muted-foreground hover:text-foreground"
+                    size="sm"
+                  >
                     Skip Question
                   </Button>
                 </Link>

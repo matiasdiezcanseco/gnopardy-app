@@ -63,7 +63,10 @@ export function FinalJeopardyWager({
   };
 
   const setQuickWager = (percentage: number) => {
-    const amount = Math.floor(maxWager * percentage);
+    // If player has zero or negative score, quick wagers should be 0
+    // The maxWager of 1000 is only for manual entry, not quick select
+    const baseAmount = currentScore > 0 ? currentScore : 0;
+    const amount = Math.floor(baseAmount * percentage);
     setWagerAmount(amount.toString());
   };
 

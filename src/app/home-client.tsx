@@ -41,7 +41,7 @@ export function HomePageClient({ activeGames }: HomePageClientProps) {
         <header className="bg-card/50 sticky top-0 z-50 border-b backdrop-blur">
           <div className="container mx-auto flex items-center justify-between px-6 py-4">
             <h1 className="text-primary text-xl font-bold tracking-tight">
-              Jeopardy!
+              Gnopardy!
             </h1>
             <nav className="flex items-center gap-4 sm:gap-6">
               <ThemeSwitcher />
@@ -79,7 +79,7 @@ export function HomePageClient({ activeGames }: HomePageClientProps) {
             {/* Logo/Title */}
             <div className="mb-12">
               <h1 className="text-primary text-6xl font-bold tracking-tight drop-shadow-sm sm:text-7xl md:text-8xl">
-                JEOPARDY!
+                GNO-PARDY!
               </h1>
               <p className="text-muted-foreground mx-auto mt-6 max-w-2xl text-xl">
                 The ultimate trivia game experience. Challenge your friends and
@@ -238,7 +238,7 @@ export function HomePageClient({ activeGames }: HomePageClientProps) {
         <footer className="bg-card/50 mt-auto border-t backdrop-blur">
           <div className="text-muted-foreground container mx-auto px-6 py-8 text-center text-sm">
             <p>
-              © {new Date().getFullYear()} Jeopardy! Game. All rights reserved.
+              © {new Date().getFullYear()} Gnopardy! Game. All rights reserved.
             </p>
           </div>
         </footer>

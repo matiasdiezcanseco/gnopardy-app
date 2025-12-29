@@ -8,19 +8,19 @@ export default async function AdminDataPage() {
   const categories = categoriesResult.success ? categoriesResult.data : [];
 
   return (
-    <div className="min-h-screen bg-background text-foreground transition-colors duration-300">
+    <div className="bg-background text-foreground min-h-screen transition-colors duration-300">
       {/* Header */}
-      <header className="border-b bg-card/50 backdrop-blur sticky top-0 z-50">
+      <header className="bg-card/50 sticky top-0 z-50 border-b backdrop-blur">
         <div className="container mx-auto flex items-center justify-between px-6 py-4">
           <div className="flex items-center gap-4">
             <Link
               href="/"
-              className="text-xl font-bold text-primary hover:text-primary/80 transition-colors"
+              className="text-primary hover:text-primary/80 text-xl font-bold transition-colors"
             >
-              Jeopardy!
+              Gnopardy!
             </Link>
             <span className="text-muted-foreground text-sm">/</span>
-            <span className="text-lg font-semibold text-foreground">
+            <span className="text-foreground text-lg font-semibold">
               Import / Export
             </span>
           </div>
@@ -41,7 +41,7 @@ export default async function AdminDataPage() {
 
       <main className="container mx-auto px-6 py-8">
         <div className="mb-8">
-          <h1 className="mb-2 text-3xl font-bold text-foreground">
+          <h1 className="text-foreground mb-2 text-3xl font-bold">
             Import & Export Data
           </h1>
           <p className="text-muted-foreground">

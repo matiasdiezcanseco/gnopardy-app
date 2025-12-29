@@ -279,7 +279,7 @@ export function FinalJeopardyClient({
               href={`/game/${game.id}`}
               className="text-primary hover:text-primary/80 text-xl font-bold transition-colors"
             >
-              Jeopardy!
+              Gnopardy!
             </Link>
             <span className="text-muted-foreground text-sm">/</span>
             <span className="text-foreground text-lg font-semibold">

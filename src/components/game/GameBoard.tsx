@@ -116,7 +116,7 @@ export function GameBoard({
             <div className="w-full max-w-2xl">
               <div className="border-primary/50 from-primary/10 to-primary/5 rounded-xl border-2 bg-gradient-to-br p-8 text-center shadow-lg">
                 <h2 className="text-primary mb-4 text-3xl font-bold">
-                  Final Jeopardy!
+                  Final Gnopardy!
                 </h2>
                 <p className="text-muted-foreground mb-6 text-lg">
                   All questions have been answered. Ready for the final round?

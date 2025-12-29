@@ -2,7 +2,7 @@
 
 ## What is Jeopardy?
 
-Jeopardy is a modern web-based trivia game inspired by the classic TV game show "Jeopardy!". The application provides an interactive platform for playing trivia with friends, family, or colleagues, featuring customizable categories, multimedia questions, and real-time score tracking.
+Jeopardy is a modern web-based trivia game inspired by the classic TV game show "Gnopardy!". The application provides an interactive platform for playing trivia with friends, family, or colleagues, featuring customizable categories, multimedia questions, and real-time score tracking.
 
 ## Core Concept
 

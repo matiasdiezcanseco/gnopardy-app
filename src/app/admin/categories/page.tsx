@@ -8,10 +8,10 @@ export default async function AdminCategoriesPage() {
 
   if (!result.success) {
     return (
-      <div className="min-h-screen bg-background p-8 flex items-center justify-center">
+      <div className="bg-background flex min-h-screen items-center justify-center p-8">
         <div className="container mx-auto max-w-md">
-          <div className="rounded-lg bg-destructive/10 border border-destructive/20 p-6 text-destructive text-center">
-            <h3 className="font-semibold mb-2">Error Loading Data</h3>
+          <div className="bg-destructive/10 border-destructive/20 text-destructive rounded-lg border p-6 text-center">
+            <h3 className="mb-2 font-semibold">Error Loading Data</h3>
             <p>Failed to load categories: {result.error}</p>
           </div>
         </div>
@@ -20,19 +20,19 @@ export default async function AdminCategoriesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground transition-colors duration-300">
+    <div className="bg-background text-foreground min-h-screen transition-colors duration-300">
       {/* Header */}
-      <header className="border-b bg-card/50 backdrop-blur sticky top-0 z-50">
+      <header className="bg-card/50 sticky top-0 z-50 border-b backdrop-blur">
         <div className="container mx-auto flex items-center justify-between px-6 py-4">
           <div className="flex items-center gap-4">
             <Link
               href="/"
-              className="text-xl font-bold text-primary hover:text-primary/80 transition-colors"
+              className="text-primary hover:text-primary/80 text-xl font-bold transition-colors"
             >
-              Jeopardy!
+              Gnopardy!
             </Link>
             <span className="text-muted-foreground text-sm">/</span>
-            <span className="text-lg font-semibold text-foreground">
+            <span className="text-foreground text-lg font-semibold">
               Manage Categories
             </span>
           </div>
@@ -52,4 +52,3 @@ export default async function AdminCategoriesPage() {
     </div>
   );
 }
-

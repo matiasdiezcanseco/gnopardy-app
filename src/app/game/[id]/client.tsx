@@ -156,7 +156,7 @@ export function GamePageClient({
               isFullscreen ? "text-base" : "text-xl",
             )}
           >
-            Jeopardy!
+            Gnopardy!
           </Link>
           <div className="flex items-center gap-4">
             <Button

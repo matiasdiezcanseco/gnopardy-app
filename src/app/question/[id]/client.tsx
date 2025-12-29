@@ -7,6 +7,7 @@ import { TextAnswerInput } from "~/components/question/TextAnswerInput";
 import { MultipleChoice } from "~/components/question/MultipleChoice";
 import { AnswerFeedback } from "~/components/question/AnswerFeedback";
 import { PlayerSelector } from "~/components/player/PlayerSelector";
+import { HintSystem } from "~/components/question/HintSystem";
 import { Button } from "~/components/ui/button";
 import {
   validateTextAnswer,
@@ -19,7 +20,12 @@ import {
   recordAnswerHistory,
   hasPlayerAttemptedQuestion,
 } from "~/server/actions/history";
-import type { Question, Answer, Player } from "~/server/db/schema";
+import type {
+  Question,
+  Answer,
+  Player,
+  QuestionHint,
+} from "~/server/db/schema";
 
 interface QuestionWithCategory extends Question {
   category: { id: number; name: string } | null;
@@ -31,6 +37,8 @@ interface QuestionPageClientProps {
   player: Player;
   allPlayers: Player[];
   gameId: number;
+  hints: QuestionHint[];
+  revealedHintIds: number[];
 }
 
 interface AnswerResult {
@@ -45,12 +53,17 @@ export function QuestionPageClient({
   player: initialPlayer,
   allPlayers: initialAllPlayers,
   gameId,
+  hints,
+  revealedHintIds: initialRevealedHintIds,
 }: QuestionPageClientProps) {
   const [isPending, startTransition] = useTransition();
   const [result, setResult] = useState<AnswerResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [currentPlayer, setCurrentPlayer] = useState<Player>(initialPlayer);
   const [allPlayers, setAllPlayers] = useState<Player[]>(initialAllPlayers);
+  const [revealedHintIds, setRevealedHintIds] = useState<number[]>(
+    initialRevealedHintIds,
+  );
 
   const handlePlayerSwitch = async (newPlayerId: number) => {
     // Reset result and error when switching players
@@ -66,6 +79,10 @@ export function QuestionPageClient({
         setError("Failed to load player data");
       }
     });
+  };
+
+  const handleHintRevealed = (hintId: number) => {
+    setRevealedHintIds((prev) => [...prev, hintId]);
   };
 
   const handleTextSubmit = (answer: string) => {
@@ -410,6 +427,15 @@ export function QuestionPageClient({
             /* Question and Answer Input */
             <div className="space-y-8">
               <QuestionView question={question} category={question.category} />
+
+              {/* Hint System */}
+              <HintSystem
+                hints={hints}
+                revealedHintIds={revealedHintIds}
+                gameId={gameId}
+                questionId={question.id}
+                onHintRevealed={handleHintRevealed}
+              />
 
               <div className="rounded-xl border bg-card p-8 shadow-md">
                 <h3 className="mb-6 text-lg font-bold text-foreground">

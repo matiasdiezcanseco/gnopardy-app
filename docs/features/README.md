@@ -73,6 +73,8 @@ All features start with **Status: Pending**. Update the status to **Completed** 
 - [52-multiple-player-attempts.md](./52-multiple-player-attempts.md) - ✅ Multiple player attempts
 - [53-inline-player-switching.md](./53-inline-player-switching.md) - ✅ Inline player switching
 - [54-fullscreen-mode.md](./54-fullscreen-mode.md) - ✅ Fullscreen mode for immersive gameplay
+- [55-manual-score-adjustment.md](./55-manual-score-adjustment.md) - ✅ Manual score adjustment
+- [56-progressive-hint-system.md](./56-progressive-hint-system.md) - ✅ Progressive hints with full admin UI
 
 **See [ENHANCEMENT_FEATURES_SUMMARY.md](../ENHANCEMENT_FEATURES_SUMMARY.md) for detailed implementation notes**  
 **See [QUICK_START_GUIDE.md](../QUICK_START_GUIDE.md) for usage instructions**

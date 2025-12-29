@@ -26,6 +26,7 @@ import {
 } from "~/components/ui/alert-dialog";
 import { MediaUpload } from "~/components/admin/MediaUpload";
 import { MultipleChoiceManager } from "~/components/admin/MultipleChoiceManager";
+import { HintManager } from "~/components/admin/HintManager";
 import {
   createQuestion,
   updateQuestion,
@@ -36,6 +37,12 @@ import {
   updateAnswer,
   deleteAnswer,
 } from "~/server/actions/answer";
+import {
+  createHint,
+  updateHint,
+  deleteHint,
+  getHintsByQuestionId,
+} from "~/server/actions/hint";
 import type { Question, Category, Answer } from "~/server/db/schema";
 
 interface QuestionWithAnswers extends Question {
@@ -73,6 +80,16 @@ export function AdminQuestionsClient({
   const [multipleChoiceAnswers, setMultipleChoiceAnswers] = useState<
     Array<{ id?: number; text: string; isCorrect: boolean; order: number }>
   >([]);
+  const [hints, setHints] = useState<
+    Array<{
+      id?: number;
+      type: "audio" | "video" | "image" | "text";
+      mediaUrl?: string;
+      textContent?: string;
+      order: number;
+      description?: string;
+    }>
+  >([]);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -86,12 +103,13 @@ export function AdminQuestionsClient({
     setCorrectAnswer("");
     setUseMultipleChoice(false);
     setMultipleChoiceAnswers([]);
+    setHints([]);
     setEditingId(null);
     setIsCreating(false);
     setError(null);
   };
 
-  const startEdit = (question: QuestionWithAnswers) => {
+  const startEdit = async (question: QuestionWithAnswers) => {
     setText(question.text);
     setType(question.type as QuestionType);
     setPoints(question.points);
@@ -115,6 +133,22 @@ export function AdminQuestionsClient({
         order: a.order ?? 0,
       })) ?? [],
     );
+
+    // Fetch existing hints
+    const hintsResult = await getHintsByQuestionId(question.id);
+    if (hintsResult.success) {
+      setHints(
+        hintsResult.data.map((h) => ({
+          id: h.id,
+          type: h.type as "audio" | "video" | "image" | "text",
+          mediaUrl: h.mediaUrl ?? undefined,
+          textContent: h.textContent ?? undefined,
+          order: h.order,
+          description: h.description ?? undefined,
+        })),
+      );
+    }
+
     setEditingId(question.id);
     setIsCreating(false);
     setError(null);
@@ -285,6 +319,9 @@ export function AdminQuestionsClient({
         // We'll just update the question fields and keep answers stale until refresh for now,
         // or try to update single answer display.
 
+        // Handle hints for updated question
+        await saveHints(editingId);
+
         setQuestions((prev) =>
           prev.map(
             (q) =>
@@ -322,6 +359,9 @@ export function AdminQuestionsClient({
           });
         }
 
+        // Handle hints for new question
+        await saveHints(newQuestion.id);
+
         // setQuestions((prev) => [...prev, newQuestion]); // Missing answers prop
         resetForm();
         window.location.reload(); // Force reload to get fresh answers
@@ -331,6 +371,53 @@ export function AdminQuestionsClient({
       console.error(err);
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const saveHints = async (questionId: number) => {
+    try {
+      // Get existing hints for this question
+      const existingHintsResult = await getHintsByQuestionId(questionId);
+      const existingHints = existingHintsResult.success
+        ? existingHintsResult.data
+        : [];
+      const existingHintIds = existingHints.map((h) => h.id);
+
+      // Delete hints that were removed
+      const currentHintIds = hints.filter((h) => h.id).map((h) => h.id!);
+      const hintsToDelete = existingHintIds.filter(
+        (id) => !currentHintIds.includes(id),
+      );
+      for (const hintId of hintsToDelete) {
+        await deleteHint(hintId);
+      }
+
+      // Create or update hints
+      for (const hint of hints) {
+        if (hint.id) {
+          // Update existing hint
+          await updateHint(hint.id, {
+            type: hint.type,
+            mediaUrl: hint.mediaUrl ?? null,
+            textContent: hint.textContent ?? null,
+            order: hint.order,
+            description: hint.description ?? null,
+          });
+        } else {
+          // Create new hint
+          await createHint({
+            questionId,
+            type: hint.type,
+            mediaUrl: hint.mediaUrl ?? null,
+            textContent: hint.textContent ?? null,
+            order: hint.order,
+            description: hint.description ?? null,
+          });
+        }
+      }
+    } catch (error) {
+      console.error("Error saving hints:", error);
+      // Don't throw - hints are optional
     }
   };
 
@@ -435,6 +522,9 @@ export function AdminQuestionsClient({
             onChange={setMultipleChoiceAnswers}
           />
         )}
+
+        {/* Hint Management */}
+        <HintManager hints={hints} onChange={setHints} />
       </div>
     );
   };

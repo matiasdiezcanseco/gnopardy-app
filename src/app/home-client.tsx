@@ -35,35 +35,37 @@ export function HomePageClient({ activeGames }: HomePageClientProps) {
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground transition-colors duration-300">
+    <div className="bg-background text-foreground min-h-screen transition-colors duration-300">
       <div className="relative">
         {/* Header */}
-        <header className="border-b bg-card/50 backdrop-blur sticky top-0 z-50">
+        <header className="bg-card/50 sticky top-0 z-50 border-b backdrop-blur">
           <div className="container mx-auto flex items-center justify-between px-6 py-4">
-            <h1 className="text-xl font-bold tracking-tight text-primary">Jeopardy!</h1>
+            <h1 className="text-primary text-xl font-bold tracking-tight">
+              Jeopardy!
+            </h1>
             <nav className="flex items-center gap-4 sm:gap-6">
               <ThemeSwitcher />
               <Link
                 href="/leaderboard"
-                className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
+                className="text-muted-foreground hover:text-primary text-sm font-medium transition-colors"
               >
                 Leaderboard
               </Link>
               <Link
                 href="/history"
-                className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
+                className="text-muted-foreground hover:text-primary text-sm font-medium transition-colors"
               >
                 History
               </Link>
               <Link
                 href="/statistics"
-                className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
+                className="text-muted-foreground hover:text-primary text-sm font-medium transition-colors"
               >
                 Stats
               </Link>
               <Link
                 href="/admin/categories"
-                className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
+                className="text-muted-foreground hover:text-primary text-sm font-medium transition-colors"
               >
                 Admin
               </Link>
@@ -76,11 +78,12 @@ export function HomePageClient({ activeGames }: HomePageClientProps) {
           <div className="mx-auto max-w-3xl text-center">
             {/* Logo/Title */}
             <div className="mb-12">
-              <h1 className="text-6xl font-bold tracking-tight text-primary sm:text-7xl md:text-8xl drop-shadow-sm">
+              <h1 className="text-primary text-6xl font-bold tracking-tight drop-shadow-sm sm:text-7xl md:text-8xl">
                 JEOPARDY!
               </h1>
-              <p className="mt-6 text-xl text-muted-foreground max-w-2xl mx-auto">
-                The ultimate trivia game experience. Challenge your friends and test your knowledge.
+              <p className="text-muted-foreground mx-auto mt-6 max-w-2xl text-xl">
+                The ultimate trivia game experience. Challenge your friends and
+                test your knowledge.
               </p>
             </div>
 
@@ -90,7 +93,7 @@ export function HomePageClient({ activeGames }: HomePageClientProps) {
                 onClick={handleNewGame}
                 disabled={isPending}
                 size="lg"
-                className="w-full sm:w-auto px-8 py-6 text-lg shadow-lg hover:shadow-xl transition-all"
+                className="w-full px-8 py-6 text-lg shadow-lg transition-all hover:shadow-xl sm:w-auto"
               >
                 {isPending ? (
                   <>
@@ -103,14 +106,12 @@ export function HomePageClient({ activeGames }: HomePageClientProps) {
               </Button>
             </div>
 
-            {error && (
-              <p className="mt-4 text-sm text-destructive">{error}</p>
-            )}
+            {error && <p className="text-destructive mt-4 text-sm">{error}</p>}
 
             {/* Active Games */}
             {activeGames.length > 0 && (
               <div className="mt-20">
-                <h2 className="mb-8 text-2xl font-semibold text-foreground">
+                <h2 className="text-foreground mb-8 text-2xl font-semibold">
                   Continue Playing
                 </h2>
                 <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -119,19 +120,19 @@ export function HomePageClient({ activeGames }: HomePageClientProps) {
                       key={game.id}
                       href={`/game/${game.id}`}
                       className={cn(
-                        "group rounded-xl border bg-card p-6",
+                        "group bg-card rounded-xl border p-6",
                         "transition-all duration-200",
                         "hover:border-primary/50 hover:shadow-md",
-                        "text-left"
+                        "text-left",
                       )}
                     >
-                      <div className="flex items-center justify-between mb-2">
-                        <h3 className="font-bold text-lg text-foreground group-hover:text-primary transition-colors">
+                      <div className="mb-2 flex items-center justify-between">
+                        <h3 className="text-foreground group-hover:text-primary text-lg font-bold transition-colors">
                           {game.name ?? `Game #${game.id}`}
                         </h3>
                         <div className="h-2 w-2 rounded-full bg-green-500" />
                       </div>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-muted-foreground text-sm">
                         Started {new Date(game.createdAt).toLocaleDateString()}
                       </p>
                     </Link>
@@ -142,11 +143,11 @@ export function HomePageClient({ activeGames }: HomePageClientProps) {
 
             {/* Features */}
             <div className="mt-24 grid gap-8 sm:grid-cols-3">
-              <Link 
+              <Link
                 href="/leaderboard"
-                className="group text-center p-8 rounded-xl border bg-card hover:border-primary/50 hover:shadow-lg transition-all"
+                className="group bg-card hover:border-primary/50 rounded-xl border p-8 text-center transition-all hover:shadow-lg"
               >
-                <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary group-hover:scale-110 transition-transform">
+                <div className="bg-primary/10 text-primary mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full transition-transform group-hover:scale-110">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 24 24"
@@ -156,7 +157,7 @@ export function HomePageClient({ activeGames }: HomePageClientProps) {
                     <path d="M4.5 6.375a4.125 4.125 0 118.25 0 4.125 4.125 0 01-8.25 0zM14.25 8.625a3.375 3.375 0 116.75 0 3.375 3.375 0 01-6.75 0zM1.5 19.125a7.125 7.125 0 0114.25 0v.003l-.001.119a.75.75 0 01-.363.63 13.067 13.067 0 01-6.761 1.873c-2.472 0-4.786-.684-6.76-1.873a.75.75 0 01-.364-.63l-.001-.122zM17.25 19.128l-.001.144a2.25 2.25 0 01-.233.96 10.088 10.088 0 005.06-1.01.75.75 0 00.42-.643 4.875 4.875 0 00-6.957-4.611 8.586 8.586 0 011.71 5.157v.003z" />
                   </svg>
                 </div>
-                <h3 className="text-xl font-bold mb-2 group-hover:text-primary transition-colors">
+                <h3 className="group-hover:text-primary mb-2 text-xl font-bold transition-colors">
                   Leaderboard
                 </h3>
                 <p className="text-muted-foreground">
@@ -166,9 +167,9 @@ export function HomePageClient({ activeGames }: HomePageClientProps) {
 
               <Link
                 href="/history"
-                className="group text-center p-8 rounded-xl border bg-card hover:border-primary/50 hover:shadow-lg transition-all"
+                className="group bg-card hover:border-primary/50 rounded-xl border p-8 text-center transition-all hover:shadow-lg"
               >
-                <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary group-hover:scale-110 transition-transform">
+                <div className="bg-primary/10 text-primary mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full transition-transform group-hover:scale-110">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 24 24"
@@ -182,7 +183,7 @@ export function HomePageClient({ activeGames }: HomePageClientProps) {
                     />
                   </svg>
                 </div>
-                <h3 className="text-xl font-bold mb-2 group-hover:text-primary transition-colors">
+                <h3 className="group-hover:text-primary mb-2 text-xl font-bold transition-colors">
                   Game History
                 </h3>
                 <p className="text-muted-foreground">
@@ -192,9 +193,9 @@ export function HomePageClient({ activeGames }: HomePageClientProps) {
 
               <Link
                 href="/statistics"
-                className="group text-center p-8 rounded-xl border bg-card hover:border-primary/50 hover:shadow-lg transition-all"
+                className="group bg-card hover:border-primary/50 rounded-xl border p-8 text-center transition-all hover:shadow-lg"
               >
-                <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary group-hover:scale-110 transition-transform">
+                <div className="bg-primary/10 text-primary mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full transition-transform group-hover:scale-110">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 24 24"
@@ -204,7 +205,7 @@ export function HomePageClient({ activeGames }: HomePageClientProps) {
                     <path d="M18.375 2.25c-1.035 0-1.875.84-1.875 1.875v15.75c0 1.035.84 1.875 1.875 1.875h.75c1.035 0 1.875-.84 1.875-1.875V4.125c0-1.036-.84-1.875-1.875-1.875h-.75zM9.75 8.625c0-1.036.84-1.875 1.875-1.875h.75c1.036 0 1.875.84 1.875 1.875v11.25c0 1.035-.84 1.875-1.875 1.875h-.75a1.875 1.875 0 01-1.875-1.875V8.625zM3 13.125c0-1.036.84-1.875 1.875-1.875h.75c1.036 0 1.875.84 1.875 1.875v6.75c0 1.035-.84 1.875-1.875 1.875h-.75A1.875 1.875 0 013 19.875v-6.75z" />
                   </svg>
                 </div>
-                <h3 className="text-xl font-bold mb-2 group-hover:text-primary transition-colors">
+                <h3 className="group-hover:text-primary mb-2 text-xl font-bold transition-colors">
                   Statistics
                 </h3>
                 <p className="text-muted-foreground">
@@ -214,25 +215,19 @@ export function HomePageClient({ activeGames }: HomePageClientProps) {
             </div>
 
             {/* Admin Features */}
-            <div className="mt-16 p-8 rounded-xl border bg-muted/30">
-              <h3 className="text-lg font-semibold text-foreground mb-6">
+            <div className="bg-muted/30 mt-16 rounded-xl border p-8">
+              <h3 className="text-foreground mb-6 text-lg font-semibold">
                 Admin Tools
               </h3>
               <div className="flex flex-wrap justify-center gap-3">
                 <Link href="/admin/categories">
-                  <Button variant="outline">
-                    📁 Manage Categories
-                  </Button>
+                  <Button variant="outline">📁 Manage Categories</Button>
                 </Link>
                 <Link href="/admin/questions">
-                  <Button variant="outline">
-                    ❓ Manage Questions
-                  </Button>
+                  <Button variant="outline">❓ Manage Questions</Button>
                 </Link>
                 <Link href="/admin/data">
-                  <Button variant="outline">
-                    💾 Import/Export Data
-                  </Button>
+                  <Button variant="outline">💾 Import/Export Data</Button>
                 </Link>
               </div>
             </div>
@@ -240,10 +235,10 @@ export function HomePageClient({ activeGames }: HomePageClientProps) {
         </main>
 
         {/* Footer */}
-        <footer className="border-t bg-card/50 backdrop-blur mt-auto">
-          <div className="container mx-auto px-6 py-8 text-center text-sm text-muted-foreground">
+        <footer className="bg-card/50 mt-auto border-t backdrop-blur">
+          <div className="text-muted-foreground container mx-auto px-6 py-8 text-center text-sm">
             <p>
-              Built with Next.js, Tailwind CSS, and Drizzle ORM
+              © {new Date().getFullYear()} Jeopardy! Game. All rights reserved.
             </p>
           </div>
         </footer>

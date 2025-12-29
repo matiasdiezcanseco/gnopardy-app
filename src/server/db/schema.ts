@@ -247,6 +247,60 @@ export const finalJeopardyWagers = createTable(
 );
 
 // ============================================================================
+// Question Hints Table (Feature 56)
+// Stores progressive hints for questions
+// ============================================================================
+export const questionHints = createTable(
+  "question_hint",
+  (d) => ({
+    id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
+    questionId: d
+      .integer()
+      .references(() => questions.id, { onDelete: "cascade" })
+      .notNull(),
+    type: d.varchar({ length: 50 }).notNull(), // audio, video, image, text
+    mediaUrl: d.text(), // URL for audio/video/image, null for text
+    textContent: d.text(), // Text content for text hints
+    order: d.integer().notNull(), // Sequential order (1, 2, 3...)
+    description: d.varchar({ length: 256 }), // Optional description
+    createdAt: d.timestamp({ withTimezone: true }).defaultNow().notNull(),
+  }),
+  (t) => [
+    index("question_hint_question_idx").on(t.questionId),
+    index("question_hint_order_idx").on(t.questionId, t.order),
+  ],
+);
+
+// ============================================================================
+// Game Question Hints Table (Feature 56)
+// Tracks which hints have been revealed in each game
+// ============================================================================
+export const gameQuestionHints = createTable(
+  "game_question_hint",
+  (d) => ({
+    id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
+    gameId: d
+      .integer()
+      .references(() => games.id, { onDelete: "cascade" })
+      .notNull(),
+    questionId: d
+      .integer()
+      .references(() => questions.id, { onDelete: "cascade" })
+      .notNull(),
+    hintId: d
+      .integer()
+      .references(() => questionHints.id, { onDelete: "cascade" })
+      .notNull(),
+    revealedAt: d.timestamp({ withTimezone: true }).defaultNow().notNull(),
+  }),
+  (t) => [
+    index("game_question_hint_game_idx").on(t.gameId),
+    index("game_question_hint_question_idx").on(t.questionId),
+    index("game_question_hint_composite_idx").on(t.gameId, t.questionId, t.hintId),
+  ],
+);
+
+// ============================================================================
 // Type Exports (for use throughout the application)
 // ============================================================================
 export type Game = typeof games.$inferSelect;
@@ -278,3 +332,9 @@ export type NewAnswerHistory = typeof answerHistory.$inferInsert;
 
 export type FinalJeopardyWager = typeof finalJeopardyWagers.$inferSelect;
 export type NewFinalJeopardyWager = typeof finalJeopardyWagers.$inferInsert;
+
+export type QuestionHint = typeof questionHints.$inferSelect;
+export type NewQuestionHint = typeof questionHints.$inferInsert;
+
+export type GameQuestionHint = typeof gameQuestionHints.$inferSelect;
+export type NewGameQuestionHint = typeof gameQuestionHints.$inferInsert;

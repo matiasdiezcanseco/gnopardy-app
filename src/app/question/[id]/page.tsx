@@ -4,6 +4,7 @@ import { getQuestionById } from "~/server/actions/question";
 import { getAnswersByQuestionId } from "~/server/actions/answer";
 import { getPlayerById, getPlayersByGameId } from "~/server/actions/player";
 import { isQuestionAnsweredInGame } from "~/server/actions/game";
+import { getHintsByQuestionId, getRevealedHints } from "~/server/actions/hint";
 
 interface QuestionPageProps {
   params: Promise<{ id: string }>;
@@ -31,12 +32,22 @@ export default async function QuestionPage({
   }
 
   // Fetch question data and all players for the game
-  const [questionResult, answersResult, playerResult, allPlayersResult, answeredResult] = await Promise.all([
+  const [
+    questionResult,
+    answersResult,
+    playerResult,
+    allPlayersResult,
+    answeredResult,
+    hintsResult,
+    revealedHintsResult,
+  ] = await Promise.all([
     getQuestionById(questionId),
     getAnswersByQuestionId(questionId),
     getPlayerById(playerIdNum),
     getPlayersByGameId(gameIdNum),
     isQuestionAnsweredInGame(gameIdNum, questionId), // Check per-game answered status
+    getHintsByQuestionId(questionId),
+    getRevealedHints(gameIdNum, questionId),
   ]);
 
   if (!questionResult.success) {
@@ -59,6 +70,10 @@ export default async function QuestionPage({
   const answers = answersResult.data;
   const player = playerResult.data;
   const allPlayers = allPlayersResult.data;
+  const hints = hintsResult.success ? hintsResult.data : [];
+  const revealedHintIds = revealedHintsResult.success
+    ? revealedHintsResult.data
+    : [];
 
   // If question is already answered in this game, redirect back to game
   if (answeredResult.success && answeredResult.data) {
@@ -72,6 +87,8 @@ export default async function QuestionPage({
       player={player}
       allPlayers={allPlayers}
       gameId={gameIdNum}
+      hints={hints}
+      revealedHintIds={revealedHintIds}
     />
   );
 }
